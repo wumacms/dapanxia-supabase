@@ -3,9 +3,12 @@ import { ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import { useAuthStore } from '../stores/auth'
+import { useAvatarStore } from '../stores/avatar'
+import AvatarUploader from '../components/AvatarUploader.vue'
 
 const router = useRouter()
 const authStore = useAuthStore()
+const avatarStore = useAvatarStore()
 const drawer = ref(false)
 
 const handleLogout = async () => {
@@ -30,8 +33,6 @@ const menuItems = [
   { title: '系统设置', icon: '⚙️', color: 'bg-gray-500' },
 ]
 
-const avatarUrl = 'https://images.unsplash.com/photo-1539571696357-5a69c17a67c6?q=30&w=400&auto=format&fit=crop'
-
 const stats = [
   { label: '总用户数', value: '1,234', change: '+12%', up: true },
   { label: '活跃用户', value: '856', change: '+8%', up: true },
@@ -52,7 +53,7 @@ const stats = [
           <div class="flex items-center gap-4">
             <el-dropdown>
               <div class="flex items-center gap-2 cursor-pointer">
-                <el-avatar :src="avatarUrl" :size="32" />
+                <AvatarUploader :size="32" />
                 <span class="text-gray-700 hidden sm:block">{{ authStore.userEmail }}</span>
               </div>
               <template #dropdown>
@@ -113,8 +114,9 @@ const stats = [
     <el-drawer v-model="drawer" title="个人中心" size="400px">
       <div class="space-y-6">
         <div class="text-center">
-          <el-avatar :src="avatarUrl" :size="80" />
+          <AvatarUploader :size="80" :editable="true" />
           <h3 class="mt-4 font-medium text-gray-800">{{ authStore.userEmail }}</h3>
+          <p class="text-gray-400 text-sm mt-1">点击头像可更换</p>
         </div>
 
         <el-descriptions :column="1" border>
