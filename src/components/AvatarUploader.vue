@@ -4,6 +4,7 @@ import { ElMessage, ElLoading } from 'element-plus'
 import { Camera, Loading } from '@element-plus/icons-vue'
 import { useAvatarStore } from '../stores/avatar'
 import { useAuthStore } from '../stores/auth'
+import { getErrorMessage } from '../utils/i18n'
 
 const props = defineProps<{
   size?: number
@@ -91,7 +92,7 @@ const uploadFile = async (file: File) => {
     // 清除预览
     previewUrl.value = null
   } catch (e: any) {
-    ElMessage.error(e.message || '上传失败')
+    ElMessage.error(getErrorMessage(e))
     previewUrl.value = null
   } finally {
     isUploading.value = false

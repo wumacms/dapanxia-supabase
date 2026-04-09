@@ -4,6 +4,7 @@ import { useRouter, useRoute } from 'vue-router'
 import { ElMessage, type FormInstance, type FormRules } from 'element-plus'
 import { User, Lock } from '@element-plus/icons-vue'
 import { useAuthStore } from '../stores/auth'
+import { getErrorMessage } from '../utils/i18n'
 
 const router = useRouter()
 const route = useRoute()
@@ -41,7 +42,7 @@ const handleLogin = async (formEl: FormInstance | undefined) => {
       const redirect = route.query.redirect as string
       router.push(redirect || '/')
     } catch (error: any) {
-      ElMessage.error(error.message || '登录失败，请检查邮箱和密码')
+      ElMessage.error(getErrorMessage(error))
     } finally {
       loading.value = false
     }

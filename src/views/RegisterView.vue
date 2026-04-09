@@ -4,6 +4,7 @@ import { useRouter } from 'vue-router'
 import { ElMessage, type FormInstance, type FormRules } from 'element-plus'
 import { Lock, Message } from '@element-plus/icons-vue'
 import { useAuthStore } from '../stores/auth'
+import { getErrorMessage } from '../utils/i18n'
 
 const router = useRouter()
 const authStore = useAuthStore()
@@ -52,7 +53,7 @@ const handleRegister = async (formEl: FormInstance | undefined) => {
       ElMessage.success('注册成功！请查收验证邮件完成激活。')
       router.push('/login')
     } catch (error: any) {
-      ElMessage.error(error.message || '注册失败，请重试')
+      ElMessage.error(getErrorMessage(error))
     } finally {
       loading.value = false
     }
