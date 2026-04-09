@@ -4,8 +4,16 @@ import { supabase } from '../utils/supabase'
 
 export const useAvatarStore = defineStore('avatar', () => {
   const avatarUrl = ref<string | null>(null)
+  const avatarVersion = ref(0) // 用于缓存破坏
   const uploading = ref(false)
   const error = ref<string | null>(null)
+
+  // 获取带版本参数的完整 URL
+  function getAvatarUrlWithVersion(baseUrl: string | null): string | null {
+    if (!baseUrl) return null
+    const v = avatarVersion.value || Date.now()
+    return `${baseUrl}?v=${v}`
+  }
 
   // 从用户元数据获取头像
   async function fetchAvatar(userId: string) {
@@ -18,6 +26,13 @@ export const useAvatarStore = defineStore('avatar', () => {
 
       if (fetchError) throw fetchError
       avatarUrl.value = data?.avatar_url || null
+      // 从 URL 中提取时间戳作为版本号，如果 URL 包含 v 参数
+      if (data?.avatar_url) {
+        const match = data.avatar_url.match(/[?&]v=(\d+)/)
+        if (match) {
+          avatarVersion.value = parseInt(match[1])
+        }
+      }
     } catch (e) {
       console.error('获取头像失败:', e)
     }
@@ -106,9 +121,14 @@ export const useAvatarStore = defineStore('avatar', () => {
     const { data } = supabase.storage.from('avatars').getPublicUrl(fileName)
 
     if (data.publicUrl) {
-      avatarUrl.value = data.publicUrl
+      // 添加时间戳参数破坏缓存
+      const timestamp = Date.now()
+      avatarVersion.value = timestamp
+      const urlWithVersion = `${data.publicUrl}?v=${timestamp}`
 
-      // 更新 profiles 表中的 avatar_url
+      avatarUrl.value = urlWithVersion
+
+      // profiles 表存储不带版本参数的原始 URL
       const { error: updateError } = await supabase
         .from('profiles')
         .upsert({
@@ -154,10 +174,12 @@ export const useAvatarStore = defineStore('avatar', () => {
 
   return {
     avatarUrl,
+    avatarVersion,
     uploading,
     error,
     fetchAvatar,
     uploadAvatar,
     deleteAvatar,
+    getAvatarUrlWithVersion,
   }
 })

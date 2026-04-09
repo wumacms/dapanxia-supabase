@@ -28,7 +28,7 @@ const router = createRouter({
   routes,
 })
 
-router.beforeEach(async (to, _from, next) => {
+router.beforeEach(async (to, _from) => {
   const authStore = useAuthStore()
 
   // 初始化认证状态
@@ -39,11 +39,9 @@ router.beforeEach(async (to, _from, next) => {
   const isAuthenticated = authStore.isAuthenticated
 
   if (to.meta.requiresAuth && !isAuthenticated) {
-    next({ name: 'Login', query: { redirect: to.fullPath } })
+    return { name: 'Login', query: { redirect: to.fullPath } }
   } else if (to.meta.guest && isAuthenticated) {
-    next({ name: 'Home' })
-  } else {
-    next()
+    return { name: 'Home' }
   }
 })
 

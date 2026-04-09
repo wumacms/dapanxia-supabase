@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { ref, computed, watch } from 'vue'
 import { ElMessage, ElLoading } from 'element-plus'
+import { Camera, Loading } from '@element-plus/icons-vue'
 import { useAvatarStore } from '../stores/avatar'
 import { useAuthStore } from '../stores/auth'
 
@@ -123,13 +124,13 @@ const handleError = () => {
     <!-- 上传中遮罩 -->
     <div v-if="isUploading" class="upload-overlay" :style="{ width: `${size || 80}px`, height: `${size || 80}px` }">
       <el-icon class="is-loading">
-        <span i-carbon-loading />
+        <Loading />
       </el-icon>
     </div>
 
     <!-- 编辑按钮 -->
     <div v-if="editable && !isUploading" class="edit-overlay" :style="{ width: `${size || 80}px`, height: `${size || 80}px` }">
-      <el-icon><span i-carbon-camera /></el-icon>
+      <el-icon><Camera /></el-icon>
     </div>
 
     <input
@@ -151,12 +152,12 @@ const handleError = () => {
 .avatar-uploader.editable .avatar-img,
 .avatar-uploader.editable .avatar-initials {
   cursor: pointer;
-  transition: opacity 0.3s;
+  transition: filter 0.3s;
 }
 
 .avatar-uploader.editable:hover .avatar-img,
 .avatar-uploader.editable:hover .avatar-initials {
-  opacity: 0.8;
+  filter: brightness(0.7);
 }
 
 .edit-overlay {
@@ -166,13 +167,14 @@ const handleError = () => {
   display: flex;
   align-items: center;
   justify-content: center;
-  background: rgba(0, 0, 0, 0.5);
+  background: rgba(0, 0, 0, 0.4);
   border-radius: 50%;
   color: white;
-  font-size: 20px;
+  font-size: 24px;
   opacity: 0;
   transition: opacity 0.3s;
   pointer-events: none;
+  z-index: 10;
 }
 
 .avatar-uploader.editable:hover .edit-overlay {
