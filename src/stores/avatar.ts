@@ -73,7 +73,7 @@ export const useAvatarStore = defineStore('avatar', () => {
       const fileName = `${userId}/avatar.${fileExt}`
 
       // 上传到 Supabase Storage
-      const { data, error: uploadError } = await supabase.storage
+      const { error: uploadError } = await supabase.storage
         .from('avatars')
         .upload(fileName, file, {
           upsert: true, // 如果已存在则覆盖

@@ -27,6 +27,47 @@ const routes: RouteRecordRaw[] = [
     component: () => import('../views/ChangePasswordView.vue'),
     meta: { requiresAuth: true },
   },
+  // 网盘资源路由
+  {
+    path: '/resources',
+    name: 'Resources',
+    component: () => import('../views/resources/ResourcesView.vue'),
+  },
+  {
+    path: '/resources/:id',
+    name: 'ResourceDetail',
+    component: () => import('../views/resources/ResourceDetailView.vue'),
+  },
+  {
+    path: '/resources/create',
+    name: 'CreateResource',
+    component: () => import('../views/resources/CreateResourceView.vue'),
+    meta: { requiresAuth: true },
+  },
+  {
+    path: '/resources/:id/edit',
+    name: 'EditResource',
+    component: () => import('../views/resources/EditResourceView.vue'),
+    meta: { requiresAuth: true },
+  },
+  {
+    path: '/my-resources',
+    name: 'MyResources',
+    component: () => import('../views/resources/MyResourcesView.vue'),
+    meta: { requiresAuth: true },
+  },
+  {
+    path: '/orders',
+    name: 'Orders',
+    component: () => import('../views/orders/OrdersView.vue'),
+    meta: { requiresAuth: true },
+  },
+  {
+    path: '/orders/:id',
+    name: 'OrderDetail',
+    component: () => import('../views/orders/OrderDetailView.vue'),
+    meta: { requiresAuth: true },
+  },
 ]
 
 const router = createRouter({
