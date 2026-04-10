@@ -256,3 +256,8 @@ backend = "postgres"
 # Edge Functions configuration
 [functions.wxpay-callback]
 verify_jwt = false
+
+[functions.wxpay-proxy]
+verify_jwt = false
+# 允许的商户ID，多个用逗号分隔，通过环境变量设置更安全
+# ALLOWED_MCH_IDS=xxx1,xxx2

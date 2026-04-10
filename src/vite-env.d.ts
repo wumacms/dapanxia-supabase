@@ -5,6 +5,7 @@ interface ImportMetaEnv {
   readonly VITE_LANTUZ_API_KEY: string
   readonly VITE_LANTUZ_API_URL: string
   readonly VITE_LANTUZ_NOTIFY_URL: string
+  readonly VITE_SUPABASE_URL: string
   readonly DEV: boolean
   readonly PROD: boolean
 }

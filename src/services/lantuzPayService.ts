@@ -87,8 +87,10 @@ export class LantuzPayService {
     }
 
     try {
-      // 开发环境走代理时 base_url 是 /api/wxpay，需要拼接相对路径
-      const endpoint = isDevProxy ? '/native' : '/wxpay/native'
+      // 根据环境选择不同的端点
+      const endpoint = isDevProxy 
+        ? '/native' 
+        : (isEdgeProxy ? '' : '/wxpay/native')  // Edge Function 代理不需要路径
       const requestBody = new URLSearchParams(requestParams).toString()
       
       console.log('=== Request Debug ===')
@@ -96,7 +98,12 @@ export class LantuzPayService {
       console.log('Request body:', requestBody)
       console.log('=====================')
       
-      const response = await fetch(`${this.config.api_url}${endpoint}`, {
+      // 构建请求URL
+      const requestUrl = isEdgeProxy 
+        ? `${this.config.api_url}?action=native`  // Edge Function: 通过query参数指定action
+        : `${this.config.api_url}${endpoint}`
+      
+      const response = await fetch(requestUrl, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/x-www-form-urlencoded',
@@ -152,9 +159,16 @@ export class LantuzPayService {
     params.sign = sign
 
     try {
-      // 开发环境走代理时 base_url 是 /api/wxpay，需要拼接相对路径
-      const endpoint = isDevProxy ? '/get_pay_order' : '/wxpay/get_pay_order'
-      const response = await fetch(`${this.config.api_url}${endpoint}`, {
+      // 根据环境选择不同的端点
+      const endpoint = isDevProxy 
+        ? '/get_pay_order' 
+        : (isEdgeProxy ? '' : '/wxpay/get_pay_order')
+      
+      const requestUrl = isEdgeProxy 
+        ? `${this.config.api_url}?action=get_pay_order`
+        : `${this.config.api_url}${endpoint}`
+        
+      const response = await fetch(requestUrl, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/x-www-form-urlencoded',
@@ -261,8 +275,15 @@ export class LantuzPayService {
     params.sign = sign
 
     try {
-      const endpoint = isDevProxy ? '/refund_order' : '/wxpay/refund_order'
-      const response = await fetch(`${this.config.api_url}${endpoint}`, {
+      const endpoint = isDevProxy 
+        ? '/refund_order' 
+        : (isEdgeProxy ? '' : '/wxpay/refund_order')
+      
+      const requestUrl = isEdgeProxy 
+        ? `${this.config.api_url}?action=refund_order`
+        : `${this.config.api_url}${endpoint}`
+        
+      const response = await fetch(requestUrl, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/x-www-form-urlencoded',
@@ -306,8 +327,15 @@ export class LantuzPayService {
     params.sign = sign
 
     try {
-      const endpoint = isDevProxy ? '/get_refund_order' : '/wxpay/get_refund_order'
-      const response = await fetch(`${this.config.api_url}${endpoint}`, {
+      const endpoint = isDevProxy 
+        ? '/get_refund_order' 
+        : (isEdgeProxy ? '' : '/wxpay/get_refund_order')
+      
+      const requestUrl = isEdgeProxy 
+        ? `${this.config.api_url}?action=get_refund_order`
+        : `${this.config.api_url}${endpoint}`
+        
+      const response = await fetch(requestUrl, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/x-www-form-urlencoded',
@@ -348,8 +376,15 @@ export class LantuzPayService {
     params.sign = sign
 
     try {
-      const endpoint = isDevProxy ? '/get_wechat_openid' : '/wxpay/get_wechat_openid'
-      const response = await fetch(`${this.config.api_url}${endpoint}`, {
+      const endpoint = isDevProxy 
+        ? '/get_wechat_openid' 
+        : (isEdgeProxy ? '' : '/wxpay/get_wechat_openid')
+      
+      const requestUrl = isEdgeProxy 
+        ? `${this.config.api_url}?action=get_wechat_openid`
+        : `${this.config.api_url}${endpoint}`
+        
+      const response = await fetch(requestUrl, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/x-www-form-urlencoded',
@@ -418,15 +453,20 @@ export class LantuzPayService {
 const lantuzPayConfig: LantuzPayConfig = {
   mch_id: import.meta.env.VITE_LANTUZ_MCH_ID || '',
   api_key: import.meta.env.VITE_LANTUZ_API_KEY || '',
-  // 开发环境使用代理路径 /api/wxpay，生产环境使用完整 URL + /api
+  // 开发环境使用代理路径 /api/wxpay，生产环境使用 Supabase Edge Function 代理
   api_url: import.meta.env.DEV 
     ? '/api/wxpay'  // 开发环境走 Vite 代理
-    : (import.meta.env.VITE_LANTUZ_API_URL || 'https://api.ltzf.cn/api'),
+    : (import.meta.env.VITE_SUPABASE_URL 
+        ? `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/wxpay-proxy`
+        : 'https://api.ltzf.cn/api'),  // 如果没有配置Supabase则回退
   notify_url: import.meta.env.VITE_LANTUZ_NOTIFY_URL || ''
 }
 
 // 开发环境代理时 base_url 不含 /wxpay，需要单独拼接
 const isDevProxy = import.meta.env.DEV
+
+// 生产环境使用 Edge Function 代理
+const isEdgeProxy = !import.meta.env.DEV && !!import.meta.env.VITE_SUPABASE_URL
 
 export const lantuzPayService = new LantuzPayService(lantuzPayConfig)
 export { isDevProxy }
