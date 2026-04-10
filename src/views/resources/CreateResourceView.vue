@@ -1,22 +1,19 @@
 <template>
-  <div class="create-resource-view">
-    <div class="max-w-4xl mx-auto px-4 py-8">
+  <div class="bg-gray-50 min-h-[calc(100vh-64px)]">
+    <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
       <!-- 面包屑导航 -->
       <div class="mb-6">
         <el-breadcrumb separator="/">
-          <el-breadcrumb-item :to="{ name: 'Resources' }">
-            资源列表
-          </el-breadcrumb-item>
+          <el-breadcrumb-item :to="{ name: 'Home' }">首页</el-breadcrumb-item>
+          <el-breadcrumb-item :to="{ name: 'Resources' }">资源库</el-breadcrumb-item>
           <el-breadcrumb-item>发布新资源</el-breadcrumb-item>
         </el-breadcrumb>
       </div>
 
-      <!-- 表单标题 -->
+      <!-- 页面标题 -->
       <div class="mb-8">
         <h1 class="text-3xl font-bold text-gray-900">发布新资源</h1>
-        <p class="mt-2 text-gray-600">
-          填写资源信息，发布到网盘资源库供其他用户下载
-        </p>
+        <p class="mt-2 text-gray-500">填写资源信息，发布到网盘资源库供其他用户下载</p>
       </div>
 
       <!-- 表单内容 -->
@@ -28,11 +25,11 @@
         size="large"
         @submit.prevent="submitForm"
       >
-        <div class="bg-white rounded-xl shadow-lg p-6">
+        <div class="bg-white rounded-xl p-6 shadow-card">
           <!-- 基本信息 -->
           <div class="mb-8">
-            <h2 class="text-xl font-semibold text-gray-900 mb-6">基本信息</h2>
-            
+            <h2 class="text-lg font-semibold text-gray-900 mb-4 pb-3 border-b border-gray-200">基本信息</h2>
+
             <!-- 资源标题 -->
             <el-form-item label="资源标题" prop="title" class="mb-6">
               <el-input
@@ -67,11 +64,11 @@
                     </el-button>
                   </div>
                 </div>
-                
+
                 <!-- 上传区域 -->
                 <div
                   v-else
-                  class="upload-area w-48 h-48 border-2 border-dashed border-gray-300 rounded-lg flex flex-col items-center justify-center cursor-pointer hover:border-blue-500 transition-colors"
+                  class="w-48 h-48 border-2 border-dashed border-gray-300 rounded-lg flex flex-col items-center justify-center cursor-pointer hover:border-blue-500 hover:bg-blue-50/50 transition-all"
                   @click="triggerFileInput"
                 >
                   <el-icon class="text-3xl text-gray-400 mb-2">
@@ -110,8 +107,8 @@
 
           <!-- 资源信息 -->
           <div class="mb-8">
-            <h2 class="text-xl font-semibold text-gray-900 mb-6">资源信息</h2>
-            
+            <h2 class="text-lg font-semibold text-gray-900 mb-4 pb-3 border-b border-gray-200">资源信息</h2>
+
             <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
               <!-- 资源分类 -->
               <el-form-item label="资源分类" prop="category">
@@ -193,8 +190,8 @@
 
           <!-- 描述和标签 -->
           <div class="mb-8">
-            <h2 class="text-xl font-semibold text-gray-900 mb-6">描述和标签</h2>
-            
+            <h2 class="text-lg font-semibold text-gray-900 mb-4 pb-3 border-b border-gray-200">描述和标签</h2>
+
             <!-- 资源描述 -->
             <el-form-item label="资源描述" prop="description" class="mb-6">
               <div class="w-full">
@@ -203,7 +200,7 @@
                     <el-button
                       v-for="button in markdownButtons"
                       :key="button.action"
-                      type="text"
+                      link
                       size="small"
                       @click="insertMarkdown(button.action)"
                     >
@@ -269,8 +266,8 @@
 
           <!-- 发布设置 -->
           <div class="mb-8">
-            <h2 class="text-xl font-semibold text-gray-900 mb-6">发布设置</h2>
-            
+            <h2 class="text-lg font-semibold text-gray-900 mb-4 pb-3 border-b border-gray-200">发布设置</h2>
+
             <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
               <!-- 发布状态 -->
               <el-form-item label="发布状态" prop="status">
@@ -414,7 +411,7 @@ const rules: FormRules = {
     { required: true, message: '请选择网盘平台', trigger: 'change' }
   ],
   price: [
-    { 
+    {
       validator: (_, value, callback) => {
         if (!form.is_free && (!value || value <= 0)) {
           callback(new Error('付费资源的价格必须大于0元'))
@@ -513,9 +510,9 @@ const insertMarkdown = (action: string) => {
       break
   }
 
-  form.description = 
-    form.description.substring(0, start) + 
-    insertText + 
+  form.description =
+    form.description.substring(0, start) +
+    insertText +
     form.description.substring(end)
 
   // 聚焦到textarea并设置光标位置
@@ -559,9 +556,9 @@ const submitForm = async () => {
       }
 
       const resource = await ResourceService.createResource(requestData, userId)
-      
+
       ElMessage.success(form.status === ResourceStatus.PUBLISHED ? '资源发布成功' : '草稿保存成功')
-      
+
       // 跳转到资源详情页
       router.push({
         name: 'ResourceDetail',
@@ -583,29 +580,15 @@ const cancel = () => {
 // 生命周期
 onMounted(() => {
   if (!authStore.isAuthenticated) {
-    router.push({ 
-      name: 'Login', 
-      query: { redirect: router.currentRoute.value.fullPath } 
+    router.push({
+      name: 'Login',
+      query: { redirect: router.currentRoute.value.fullPath }
     })
   }
 })
 </script>
 
 <style scoped>
-.create-resource-view {
-  min-height: calc(100vh - 64px);
-  background-color: #f8fafc;
-}
-
-.upload-area {
-  transition: all 0.3s ease;
-}
-
-.upload-area:hover {
-  border-color: #409eff;
-  background-color: rgba(64, 158, 255, 0.05);
-}
-
 :deep(.el-form-item__label) {
   font-weight: 500;
   color: #374151;

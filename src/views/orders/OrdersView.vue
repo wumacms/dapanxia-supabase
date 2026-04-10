@@ -1,12 +1,10 @@
 <template>
-  <div class="orders-view">
-    <div class="max-w-7xl mx-auto px-4 py-8">
+  <div class="bg-gray-50 min-h-[calc(100vh-64px)]">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
       <!-- 面包屑导航 -->
       <div class="mb-6">
         <el-breadcrumb separator="/">
-          <el-breadcrumb-item :to="{ name: 'Resources' }">
-            资源列表
-          </el-breadcrumb-item>
+          <el-breadcrumb-item :to="{ name: 'Home' }">首页</el-breadcrumb-item>
           <el-breadcrumb-item>我的订单</el-breadcrumb-item>
         </el-breadcrumb>
       </div>
@@ -14,68 +12,74 @@
       <!-- 页面标题 -->
       <div class="mb-8">
         <h1 class="text-3xl font-bold text-gray-900">我的订单</h1>
-        <p class="mt-2 text-gray-600">
-          查看和管理您的所有购买订单
-        </p>
+        <p class="mt-2 text-gray-500">查看和管理您的所有购买订单</p>
       </div>
 
       <!-- 统计卡片 -->
       <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
         <!-- 总订单数 -->
-        <div class="stat-card bg-gradient-to-r from-blue-500 to-blue-600 text-white rounded-xl p-6">
+        <div class="bg-white rounded-xl p-6 shadow-card transition-all duration-300 hover:-translate-y-0.5 hover:shadow-card-hover border-l-4 border-blue-500">
           <div class="flex items-center justify-between">
             <div>
-              <p class="text-sm opacity-90">总订单数</p>
-              <p class="text-3xl font-bold mt-2">{{ stats.total_orders || 0 }}</p>
+              <p class="text-gray-500 text-sm">总订单数</p>
+              <p class="text-3xl font-bold text-gray-900 mt-2">{{ stats.total_orders || 0 }}</p>
             </div>
-            <el-icon class="text-4xl opacity-80">
-              <List />
-            </el-icon>
+            <div class="w-12 h-12 rounded-xl bg-blue-100 flex items-center justify-center">
+              <el-icon class="text-2xl text-blue-600">
+                <List />
+              </el-icon>
+            </div>
           </div>
         </div>
 
         <!-- 待支付 -->
-        <div class="stat-card bg-gradient-to-r from-yellow-500 to-yellow-600 text-white rounded-xl p-6">
+        <div class="bg-white rounded-xl p-6 shadow-card transition-all duration-300 hover:-translate-y-0.5 hover:shadow-card-hover border-l-4 border-yellow-500">
           <div class="flex items-center justify-between">
             <div>
-              <p class="text-sm opacity-90">待支付</p>
-              <p class="text-3xl font-bold mt-2">{{ stats.pending_orders || 0 }}</p>
+              <p class="text-gray-500 text-sm">待支付</p>
+              <p class="text-3xl font-bold text-gray-900 mt-2">{{ stats.pending_orders || 0 }}</p>
             </div>
-            <el-icon class="text-4xl opacity-80">
-              <Clock />
-            </el-icon>
+            <div class="w-12 h-12 rounded-xl bg-yellow-100 flex items-center justify-center">
+              <el-icon class="text-2xl text-yellow-600">
+                <Clock />
+              </el-icon>
+            </div>
           </div>
         </div>
 
         <!-- 已支付 -->
-        <div class="stat-card bg-gradient-to-r from-green-500 to-green-600 text-white rounded-xl p-6">
+        <div class="bg-white rounded-xl p-6 shadow-card transition-all duration-300 hover:-translate-y-0.5 hover:shadow-card-hover border-l-4 border-green-500">
           <div class="flex items-center justify-between">
             <div>
-              <p class="text-sm opacity-90">已支付</p>
-              <p class="text-3xl font-bold mt-2">{{ stats.paid_orders || 0 }}</p>
+              <p class="text-gray-500 text-sm">已支付</p>
+              <p class="text-3xl font-bold text-gray-900 mt-2">{{ stats.paid_orders || 0 }}</p>
             </div>
-            <el-icon class="text-4xl opacity-80">
-              <Check />
-            </el-icon>
+            <div class="w-12 h-12 rounded-xl bg-green-100 flex items-center justify-center">
+              <el-icon class="text-2xl text-green-600">
+                <Check />
+              </el-icon>
+            </div>
           </div>
         </div>
 
         <!-- 总消费 -->
-        <div class="stat-card bg-gradient-to-r from-purple-500 to-purple-600 text-white rounded-xl p-6">
+        <div class="bg-white rounded-xl p-6 shadow-card transition-all duration-300 hover:-translate-y-0.5 hover:shadow-card-hover border-l-4 border-purple-500">
           <div class="flex items-center justify-between">
             <div>
-              <p class="text-sm opacity-90">总消费</p>
-              <p class="text-3xl font-bold mt-2">¥{{ stats.total_spent?.toFixed(2) || '0.00' }}</p>
+              <p class="text-gray-500 text-sm">总消费</p>
+              <p class="text-3xl font-bold text-gray-900 mt-2">¥{{ stats.total_spent?.toFixed(2) || '0.00' }}</p>
             </div>
-            <el-icon class="text-4xl opacity-80">
-              <Money />
-            </el-icon>
+            <div class="w-12 h-12 rounded-xl bg-purple-100 flex items-center justify-center">
+              <el-icon class="text-2xl text-purple-600">
+                <Money />
+              </el-icon>
+            </div>
           </div>
         </div>
       </div>
 
       <!-- 筛选和操作栏 -->
-      <div class="bg-white rounded-xl shadow-md p-6 mb-6">
+      <div class="bg-white rounded-xl p-6 shadow-card mb-6">
         <div class="flex flex-col md:flex-row justify-between items-start md:items-center space-y-4 md:space-y-0">
           <!-- 筛选 -->
           <div class="flex flex-wrap items-center space-x-4">
@@ -149,27 +153,27 @@
       </div>
 
       <!-- 加载状态 -->
-      <div v-if="loading && orders.length === 0" class="text-center py-12">
-        <el-icon class="is-loading text-4xl text-blue-500">
+      <div v-if="loading && orders.length === 0" class="flex flex-col items-center justify-center py-12">
+        <el-icon class="text-4xl text-blue-500 is-loading">
           <Loading />
         </el-icon>
-        <p class="mt-4 text-gray-600">加载订单中...</p>
+        <p class="mt-4 text-gray-500">加载订单中...</p>
       </div>
 
       <!-- 空状态 -->
-      <div v-else-if="orders.length === 0" class="text-center py-12">
-        <el-icon class="text-6xl text-gray-400 mb-4">
+      <div v-else-if="orders.length === 0" class="flex flex-col items-center justify-center py-12 bg-white rounded-xl shadow-card">
+        <el-icon class="text-6xl text-gray-300 mb-4">
           <ShoppingCart />
         </el-icon>
         <h3 class="text-xl font-semibold text-gray-900 mb-2">暂无订单</h3>
-        <p class="text-gray-600 mb-6">您还没有购买过任何资源</p>
+        <p class="text-gray-500 mb-6">您还没有购买过任何资源</p>
         <el-button type="primary" @click="browseResources" size="large">
           浏览资源
         </el-button>
       </div>
 
       <!-- 订单列表 -->
-      <div v-else class="bg-white rounded-xl shadow-md overflow-hidden">
+      <div v-else class="bg-white rounded-xl shadow-card overflow-hidden">
         <div class="overflow-x-auto">
           <table class="min-w-full divide-y divide-gray-200">
             <thead class="bg-gray-50">
@@ -234,9 +238,9 @@
                     </div>
                     <div class="flex-1 min-w-0">
                       <p class="text-sm font-medium text-gray-900 truncate">
-                        {{ order.resource?.title }}
+                        {{ order.resource?.title || order.resource_title || '资源已下架' }}
                       </p>
-                      <p class="text-xs text-gray-500 mt-1">
+                      <p v-if="order.resource" class="text-xs text-gray-500 mt-1">
                         {{ getCategoryLabel(order.resource?.category) }} | {{ getPlatformLabel(order.resource?.platform) }}
                       </p>
                     </div>
@@ -366,9 +370,9 @@ const isAuthenticated = computed(() => authStore.isAuthenticated)
 // 生命周期
 onMounted(() => {
   if (!isAuthenticated.value) {
-    router.push({ 
-      name: 'Login', 
-      query: { redirect: router.currentRoute.value.fullPath } 
+    router.push({
+      name: 'Login',
+      query: { redirect: router.currentRoute.value.fullPath }
     })
   } else {
     loadData()
@@ -467,11 +471,11 @@ const getStatusTagType = (status?: OrderStatus) => {
   }
 }
 
-const getCategoryLabel = (category?: string) => {
+const getCategoryLabel = (category?: string | null) => {
   return ResourceCategoryLabels[category as keyof typeof ResourceCategoryLabels] || '其他'
 }
 
-const getPlatformLabel = (platform?: string) => {
+const getPlatformLabel = (platform?: string | null) => {
   return CloudPlatformLabels[platform as keyof typeof CloudPlatformLabels] || '其他'
 }
 
@@ -498,63 +502,15 @@ const payOrder = (order: Order) => {
 }
 
 const downloadResource = (order: Order) => {
-  if (!order.resource?.resource_url) {
+  if (!order.resource_url) {
     ElMessage.warning('资源链接不存在')
     return
   }
-  
-  window.open(order.resource.resource_url, '_blank')
+
+  window.open(order.resource_url, '_blank')
 }
 
 const browseResources = () => {
   router.push('/resources')
 }
 </script>
-
-<style scoped>
-.orders-view {
-  min-height: calc(100vh - 64px);
-  background-color: #f8fafc;
-}
-
-.stat-card {
-  transition: transform 0.3s ease, box-shadow 0.3s ease;
-}
-
-.stat-card:hover {
-  transform: translateY(-4px);
-  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
-}
-
-/* 表格样式 */
-:deep(.el-table) {
-  border-radius: 12px;
-  overflow: hidden;
-}
-
-:deep(.el-table__header-wrapper) {
-  border-radius: 12px 12px 0 0;
-}
-
-:deep(.el-table__body-wrapper) {
-  border-radius: 0 0 12px 12px;
-}
-
-/* 日期选择器样式 */
-:deep(.el-date-editor) {
-  border-radius: 8px;
-}
-
-:deep(.el-input__wrapper) {
-  border-radius: 8px;
-}
-
-/* 按钮样式 */
-:deep(.el-button) {
-  transition: all 0.3s ease;
-}
-
-:deep(.el-button:hover) {
-  transform: translateY(-1px);
-}
-</style>

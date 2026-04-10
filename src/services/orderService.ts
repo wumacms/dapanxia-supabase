@@ -40,6 +40,27 @@ export class OrderService {
       throw new Error('您已购买此资源')
     }
 
+    // 检查是否有待支付的订单，如果有则直接返回
+    const { data: pendingOrder } = await supabase
+      .from('orders')
+      .select('id, order_no, created_at, expires_at')
+      .eq('user_id', userId)
+      .eq('resource_id', resourceId)
+      .eq('payment_status', OrderStatus.PENDING)
+      .maybeSingle()
+
+    if (pendingOrder) {
+      // 检查订单是否过期
+      const expiresAt = new Date(pendingOrder.expires_at)
+      if (expiresAt > new Date()) {
+        // 订单未过期，返回现有订单
+        return this.getOrder(pendingOrder.id, userId) as Promise<Order>
+      } else {
+        // 订单已过期，删除它
+        await supabase.from('orders').delete().eq('id', pendingOrder.id)
+      }
+    }
+
     // 生成订单号
     const orderNo = this.generateOrderNo()
     
@@ -53,6 +74,7 @@ export class OrderService {
         order_no: orderNo,
         user_id: userId,
         resource_id: resourceId,
+        resource_title: resource.title,  // 保存资源名称
         amount: resource.price,
         payment_channel: paymentChannel,
         payment_status: OrderStatus.PENDING,
@@ -77,7 +99,7 @@ export class OrderService {
   static async getOrder(id: string, userId: string): Promise<Order | null> {
     const { data, error } = await supabase
       .from('orders')
-      .select('*, resources(*)')
+      .select('*')
       .eq('id', id)
       .eq('user_id', userId)
       .single()
@@ -85,6 +107,32 @@ export class OrderService {
     if (error) {
       console.error('Error fetching order:', error)
       throw error
+    }
+
+    // 如果订单已支付，从 user_purchases 表获取资源快照和下载链接
+    if (data.payment_status === 'paid' || data.payment_status === 'completed') {
+      const { data: purchase } = await supabase
+        .from('user_purchases')
+        .select('resource_url, resource_title, cover_url, description, category, platform')
+        .eq('order_id', id)
+        .maybeSingle()
+      
+      if (purchase) {
+        // 优先使用快照数据
+        data.resource_url = purchase.resource_url
+        ;(data as any).purchase_snapshot = purchase
+      }
+    } else {
+      // 待支付订单，关联查询资源表获取基本信息
+      const { data: resource } = await supabase
+        .from('resources')
+        .select('id, title, description, cover_url, category, platform')
+        .eq('id', data.resource_id)
+        .single()
+      
+      if (resource) {
+        data.resource = resource
+      }
     }
 
     return data
@@ -99,7 +147,7 @@ export class OrderService {
 
     const { data, error, count } = await supabase
       .from('orders')
-      .select('*, resources(*)', { count: 'exact' })
+      .select('*', { count: 'exact' })
       .eq('user_id', userId)
       .order('created_at', { ascending: false })
       .range(from, to)
@@ -107,6 +155,42 @@ export class OrderService {
     if (error) {
       console.error('Error fetching user orders:', error)
       throw error
+    }
+
+    // 获取所有订单ID
+    const orderIds = (data || []).map(o => o.id)
+    
+    // 批量查询已支付订单的购买快照
+    if (orderIds.length > 0) {
+      const { data: purchases } = await supabase
+        .from('user_purchases')
+        .select('order_id, resource_url, resource_title, cover_url, category, platform')
+        .in('order_id', orderIds)
+      
+      const purchaseMap = new Map()
+      purchases?.forEach(p => purchaseMap.set(p.order_id, p))
+
+      // 为已支付订单附加快照数据，为待支付订单附加资源基本信息
+      for (const order of data || []) {
+        const purchase = purchaseMap.get(order.id)
+        
+        if (purchase) {
+          // 已支付订单：使用快照数据
+          order.resource_url = purchase.resource_url
+          ;(order as any).purchase_snapshot = purchase
+        } else if (order.payment_status === 'pending') {
+          // 待支付订单：查询资源基本信息
+          const { data: resource } = await supabase
+            .from('resources')
+            .select('id, title, cover_url, category, platform')
+            .eq('id', order.resource_id)
+            .single()
+          
+          if (resource) {
+            order.resource = resource
+          }
+        }
+      }
     }
 
     const total = count || 0
@@ -173,6 +257,27 @@ export class OrderService {
     if (externalTransactionNo) updateData.external_transaction_no = externalTransactionNo
     if (paymentTime) updateData.payment_time = paymentTime
 
+    // 如果支付成功，同时保存资源链接到订单表
+    if (status === OrderStatus.PAID) {
+      const { data: order } = await supabase
+        .from('orders')
+        .select('resource_id')
+        .eq('id', orderId)
+        .single()
+      
+      if (order?.resource_id) {
+        const { data: resource } = await supabase
+          .from('resources')
+          .select('resource_url')
+          .eq('id', order.resource_id)
+          .single()
+        
+        if (resource?.resource_url) {
+          updateData.resource_url = resource.resource_url
+        }
+      }
+    }
+
     const { error } = await supabase
       .from('orders')
       .update(updateData)
@@ -193,10 +298,10 @@ export class OrderService {
    * 创建购买记录
    */
   private static async createPurchaseRecord(orderId: string): Promise<void> {
-    // 获取订单信息
+    // 获取订单和资源信息
     const { data: order, error: orderError } = await supabase
       .from('orders')
-      .select('*, resources!inner(resource_url)')
+      .select('*, resources!inner(*)')
       .eq('id', orderId)
       .single()
 
@@ -205,14 +310,20 @@ export class OrderService {
       throw orderError
     }
 
-    // 创建购买记录
+    // 创建购买记录（保存资源快照）
     const { error } = await supabase
       .from('user_purchases')
       .insert({
         user_id: order.user_id,
         resource_id: order.resource_id,
         order_id: order.id,
-        resource_url: order.resources.resource_url
+        resource_url: order.resources.resource_url,
+        // 保存资源快照
+        resource_title: order.resources.title,
+        cover_url: order.resources.cover_url,
+        description: order.resources.description,
+        category: order.resources.category,
+        platform: order.resources.platform
       })
 
     if (error) {

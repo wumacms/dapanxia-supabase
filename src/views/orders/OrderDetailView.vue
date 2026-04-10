@@ -1,34 +1,33 @@
 <template>
-  <div class="order-detail-view">
-    <div v-if="loading" class="max-w-4xl mx-auto px-4 py-12">
-      <div class="text-center">
-        <el-icon class="is-loading text-4xl text-blue-500">
+  <div class="bg-gray-50 min-h-[calc(100vh-64px)]">
+    <div v-if="loading" class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+      <div class="flex flex-col items-center justify-center py-12">
+        <el-icon class="text-4xl text-blue-500 is-loading">
           <Loading />
         </el-icon>
-        <p class="mt-4 text-gray-600">加载订单信息中...</p>
+        <p class="mt-4 text-gray-500">加载订单信息中...</p>
       </div>
     </div>
 
-    <div v-else-if="error" class="max-w-4xl mx-auto px-4 py-12">
-      <div class="text-center">
+    <div v-else-if="error" class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+      <div class="flex flex-col items-center justify-center py-12 bg-white rounded-xl shadow-card">
         <el-icon class="text-6xl text-red-500 mb-4">
           <CircleCloseFilled />
         </el-icon>
         <h3 class="text-xl font-semibold text-gray-900 mb-2">加载失败</h3>
-        <p class="text-gray-600 mb-6">{{ error }}</p>
+        <p class="text-gray-500 mb-6">{{ error }}</p>
         <el-button type="primary" @click="$router.back()" size="large">
           返回
         </el-button>
       </div>
     </div>
 
-    <div v-else-if="order" class="max-w-4xl mx-auto px-4 py-8">
+    <div v-else-if="order" class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
       <!-- 面包屑导航 -->
       <div class="mb-6">
         <el-breadcrumb separator="/">
-          <el-breadcrumb-item :to="{ name: 'Orders' }">
-            我的订单
-          </el-breadcrumb-item>
+          <el-breadcrumb-item :to="{ name: 'Home' }">首页</el-breadcrumb-item>
+          <el-breadcrumb-item :to="{ name: 'Orders' }">我的订单</el-breadcrumb-item>
           <el-breadcrumb-item>订单详情</el-breadcrumb-item>
         </el-breadcrumb>
       </div>
@@ -53,7 +52,7 @@
       </div>
 
       <!-- 订单内容 -->
-      <div class="bg-white rounded-xl shadow-lg overflow-hidden mb-8">
+      <div class="bg-white rounded-xl shadow-card overflow-hidden mb-8">
         <!-- 资源信息 -->
         <div class="p-6 border-b border-gray-200">
           <h2 class="text-xl font-semibold text-gray-900 mb-4">资源信息</h2>
@@ -61,9 +60,9 @@
             <!-- 封面 -->
             <div class="flex-shrink-0 w-24 h-24 rounded-lg overflow-hidden border border-gray-200">
               <img
-                v-if="order.resource?.cover_url"
-                :src="order.resource.cover_url"
-                :alt="order.resource.title"
+                v-if="getResourceCoverUrl(order)"
+                :src="getResourceCoverUrl(order)!"
+                :alt="getResourceTitle(order)"
                 class="w-full h-full object-cover"
               />
               <div
@@ -79,17 +78,17 @@
             <!-- 资源详情 -->
             <div class="flex-1">
               <h3 class="text-lg font-semibold text-gray-900">
-                {{ order.resource?.title }}
+                {{ getResourceTitle(order) }}
               </h3>
-              <p class="text-sm text-gray-600 mt-1 line-clamp-2">
-                {{ order.resource?.description }}
+              <p v-if="getResourceDescription(order)" class="text-sm text-gray-600 mt-1 line-clamp-2">
+                {{ getResourceDescription(order) }}
               </p>
               <div class="flex items-center mt-3 space-x-4 text-sm">
                 <span class="text-gray-500">
-                  分类：{{ getCategoryLabel(order.resource?.category) }}
+                  分类：{{ getCategoryLabel(getResourceCategory(order)) }}
                 </span>
                 <span class="text-gray-500">
-                  平台：{{ getPlatformLabel(order.resource?.platform) }}
+                  平台：{{ getPlatformLabel(getResourcePlatform(order)) }}
                 </span>
               </div>
             </div>
@@ -163,7 +162,7 @@
         <!-- 支付二维码区域（仅待支付状态显示） -->
         <div v-if="order.payment_status === 'pending'" class="p-6">
           <h2 class="text-xl font-semibold text-gray-900 mb-4">支付方式</h2>
-          
+
           <div class="flex flex-col lg:flex-row items-center lg:items-start gap-8">
             <!-- 二维码 -->
             <div class="lg:w-1/2">
@@ -172,7 +171,7 @@
                   <p class="text-lg font-semibold text-gray-900">微信扫码支付</p>
                   <p class="text-sm text-gray-600 mt-1">使用微信扫描下方二维码完成支付</p>
                 </div>
-                
+
                 <!-- 二维码容器 -->
                 <div class="relative inline-block">
                   <div
@@ -195,11 +194,11 @@
                   >
                     <p class="text-gray-500">加载二维码中...</p>
                   </div>
-                  
+
                   <!-- 二维码刷新按钮 -->
                   <el-button
                     v-if="qrCodeUrl && !loadingQRCode"
-                    type="text"
+                    link
                     class="absolute top-2 right-2"
                     @click="refreshQRCode"
                     :loading="refreshingQRCode"
@@ -329,8 +328,8 @@
                   </el-icon>
                   <div>
                     <p class="font-medium text-gray-900">网盘资源地址</p>
-                    <p v-if="order.resource?.resource_url" class="text-sm text-gray-600 mt-1">
-                      {{ order.resource.resource_url }}
+                    <p v-if="order.resource_url" class="text-sm text-gray-600 mt-1">
+                      {{ order.resource_url }}
                     </p>
                     <p v-else class="text-sm text-gray-600 mt-1">
                       资源链接加载中...
@@ -341,7 +340,7 @@
                   type="success"
                   @click="downloadResource"
                   :loading="downloading"
-                  :disabled="!order.resource?.resource_url"
+                  :disabled="!order.resource_url"
                 >
                   <el-icon class="mr-2">
                     <Download />
@@ -440,7 +439,7 @@ const refreshingQRCode = ref(false)
 const cancelling = ref(false)
 const downloading = ref(false)
 const countdown = ref(1800) // 30分钟，单位：秒
-const pollingInterval = ref<NodeJS.Timeout | null>(null)
+const pollingInterval = ref<ReturnType<typeof setTimeout> | null>(null)
 const pollingStopped = ref(false)
 
 // 计算属性
@@ -488,9 +487,9 @@ const countdownClass = computed(() => {
 // 生命周期
 onMounted(() => {
   if (!isAuthenticated.value) {
-    router.push({ 
-      name: 'Login', 
-      query: { redirect: router.currentRoute.value.fullPath } 
+    router.push({
+      name: 'Login',
+      query: { redirect: router.currentRoute.value.fullPath }
     })
   } else {
     loadOrder()
@@ -511,7 +510,7 @@ const loadOrder = async () => {
 
   loading.value = true
   error.value = ''
-  
+
   try {
     const userId = authStore.user?.id
     if (!userId) {
@@ -519,7 +518,7 @@ const loadOrder = async () => {
     }
 
     const loadedOrder = await OrderService.getOrder(orderId, userId)
-    
+
     if (!loadedOrder) {
       error.value = '订单不存在'
       return
@@ -545,12 +544,17 @@ const loadQRCode = async () => {
   if (!order.value) return
 
   loadingQRCode.value = true
+  qrCodeUrl.value = ''
   try {
     const result = await lantuzPayService.createNativePayment(order.value)
-    qrCodeUrl.value = result.qr_code_url
+    if (result.qr_code_url) {
+      qrCodeUrl.value = result.qr_code_url
+    } else {
+      throw new Error('未获取到支付二维码')
+    }
   } catch (err: any) {
     console.error('Error loading QR code:', err)
-    ElMessage.error(err.message || '加载支付二维码失败')
+    ElMessage.error(err.message || '加载支付二维码失败，请稍后重试')
   } finally {
     loadingQRCode.value = false
   }
@@ -576,7 +580,7 @@ const startPolling = () => {
 
     try {
       const result = await lantuzPayService.queryOrder(order.value.order_no)
-      
+
       if (result.pay_status === 1) {
         // 支付成功，更新订单状态
         await OrderService.updatePaymentStatus(
@@ -586,15 +590,25 @@ const startPolling = () => {
           result.pay_no,
           result.success_time
         )
-        
+
         ElMessage.success('支付成功！')
         stopPolling()
         await loadOrder() // 重新加载订单信息
       }
-    } catch (err) {
+    } catch (err: any) {
       console.error('Error polling order status:', err)
+      // 如果是限流错误，暂停轮询一段时间
+      if (err.message?.includes('降低请求接口频率')) {
+        stopPolling()
+        // 30秒后重新开始轮询
+        setTimeout(() => {
+          if (!pollingStopped.value) {
+            startPolling()
+          }
+        }, 30000)
+      }
     }
-  }, 5000) // 5秒轮询一次
+  }, 10000) // 10秒轮询一次，避免限流
 }
 
 const stopPolling = () => {
@@ -611,7 +625,7 @@ const startCountdown = () => {
   const expiresAt = new Date(order.value.expires_at).getTime()
   const now = Date.now()
   const remainingTime = Math.max(0, Math.floor((expiresAt - now) / 1000))
-  
+
   countdown.value = remainingTime
 
   const timer = setInterval(() => {
@@ -664,11 +678,31 @@ const getStatusTagType = (status?: OrderStatus) => {
   }
 }
 
-const getCategoryLabel = (category?: string) => {
+const getResourceTitle = (order: Order) => {
+  return order.purchase_snapshot?.resource_title || order.resource?.title || order.resource_title || '资源已下架'
+}
+
+const getResourceDescription = (order: Order) => {
+  return order.purchase_snapshot?.description || order.resource?.description
+}
+
+const getResourceCoverUrl = (order: Order) => {
+  return order.purchase_snapshot?.cover_url || order.resource?.cover_url
+}
+
+const getResourceCategory = (order: Order) => {
+  return order.purchase_snapshot?.category || order.resource?.category
+}
+
+const getResourcePlatform = (order: Order) => {
+  return order.purchase_snapshot?.platform || order.resource?.platform
+}
+
+const getCategoryLabel = (category?: string | null) => {
   return ResourceCategoryLabels[category as keyof typeof ResourceCategoryLabels] || '其他'
 }
 
-const getPlatformLabel = (platform?: string) => {
+const getPlatformLabel = (platform?: string | null) => {
   return CloudPlatformLabels[platform as keyof typeof CloudPlatformLabels] || '其他'
 }
 
@@ -704,7 +738,7 @@ const simulatePayment = async () => {
       'SIM' + Date.now(),
       new Date().toISOString()
     )
-    
+
     ElMessage.success('模拟支付成功！')
     stopPolling()
     await loadOrder()
@@ -748,11 +782,11 @@ const cancelOrder = async () => {
 }
 
 const downloadResource = async () => {
-  if (!order.value || !order.value.resource?.resource_url) return
+  if (!order.value || !order.value.resource_url) return
 
   downloading.value = true
   try {
-    window.open(order.value.resource.resource_url, '_blank')
+    window.open(order.value.resource_url, '_blank')
   } catch (err) {
     console.error('Error downloading resource:', err)
     ElMessage.error('打开资源链接失败')
@@ -772,21 +806,11 @@ const goBack = () => {
 </script>
 
 <style scoped>
-.order-detail-view {
-  min-height: calc(100vh - 64px);
-  background-color: #f8fafc;
-}
-
 .line-clamp-2 {
   overflow: hidden;
   display: -webkit-box;
   -webkit-box-orient: vertical;
   -webkit-line-clamp: 2;
-}
-
-/* 二维码区域样式 */
-:deep(.el-button--text:hover) {
-  background-color: rgba(255, 255, 255, 0.1);
 }
 
 /* 状态横幅动画 */

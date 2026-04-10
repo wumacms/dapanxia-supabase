@@ -1,23 +1,23 @@
 <template>
-  <div class="resource-detail-view">
+  <div class="bg-gray-50 min-h-[calc(100vh-64px)]">
     <!-- 加载状态 -->
-    <div v-if="loading" class="container mx-auto px-4 py-12">
-      <div class="text-center">
-        <el-icon class="is-loading text-4xl text-blue-500">
+    <div v-if="loading" class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+      <div class="flex flex-col items-center justify-center py-12">
+        <el-icon class="loading-icon is-loading">
           <Loading />
         </el-icon>
-        <p class="mt-4 text-gray-600">加载资源详情中...</p>
+        <p class="mt-4 text-gray-500">加载资源详情中...</p>
       </div>
     </div>
 
     <!-- 错误状态 -->
-    <div v-else-if="error" class="container mx-auto px-4 py-12">
-      <div class="text-center">
-        <el-icon class="text-6xl text-red-500 mb-4">
+    <div v-else-if="error" class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+      <div class="flex flex-col items-center justify-center py-12 bg-white rounded-xl shadow-card">
+        <el-icon class="empty-icon text-red-500">
           <CircleCloseFilled />
         </el-icon>
         <h3 class="text-xl font-semibold text-gray-900 mb-2">加载失败</h3>
-        <p class="text-gray-600 mb-6">{{ error }}</p>
+        <p class="text-gray-500 mb-6">{{ error }}</p>
         <el-button type="primary" @click="retryLoad" size="large">
           重试
         </el-button>
@@ -25,25 +25,24 @@
     </div>
 
     <!-- 资源详情 -->
-    <div v-else-if="resource" class="max-w-6xl mx-auto px-4 py-8">
+    <div v-else-if="resource" class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
       <!-- 面包屑导航 -->
       <div class="mb-6">
         <el-breadcrumb separator="/">
-          <el-breadcrumb-item :to="{ name: 'Resources' }">
-            资源列表
-          </el-breadcrumb-item>
+          <el-breadcrumb-item :to="{ name: 'Home' }">首页</el-breadcrumb-item>
+          <el-breadcrumb-item :to="{ name: 'Resources' }">资源库</el-breadcrumb-item>
           <el-breadcrumb-item>{{ resource.title }}</el-breadcrumb-item>
         </el-breadcrumb>
       </div>
 
       <!-- 主要内容区域 -->
-      <div class="bg-white rounded-xl shadow-lg overflow-hidden">
+      <div class="bg-white rounded-xl shadow-card overflow-hidden">
         <!-- 头部信息 -->
         <div class="p-6 border-b border-gray-200">
           <div class="flex flex-col lg:flex-row gap-6">
             <!-- 封面图片 -->
             <div class="lg:w-1/3">
-              <div class="resource-cover rounded-lg overflow-hidden shadow-md">
+              <div class="rounded-lg overflow-hidden shadow-md rounded-lg overflow-hidden shadow-md">
                 <img
                   v-if="resource.cover_url"
                   :src="resource.cover_url"
@@ -154,7 +153,20 @@
               <!-- 操作按钮 -->
               <div class="flex flex-wrap gap-3">
                 <el-button
-                  v-if="!resource.has_purchased && !resource.is_free && isAuthenticated"
+                  v-if="resource.can_edit"
+                  type="success"
+                  size="large"
+                  @click="downloadResource"
+                  class="flex-1 min-w-[200px]"
+                >
+                  <el-icon class="mr-2">
+                    <Download />
+                  </el-icon>
+                  立即下载
+                </el-button>
+
+                <el-button
+                  v-else-if="!resource.has_purchased && !resource.is_free && isAuthenticated"
                   type="primary"
                   size="large"
                   @click="handlePurchase"
@@ -331,11 +343,11 @@ const loadResource = async () => {
 
   loading.value = true
   error.value = ''
-  
+
   try {
     const userId = authStore.user?.id
     resource.value = await ResourceService.getResource(resourceId, userId)
-    
+
     if (resource.value) {
       loadSimilarResources()
     }
@@ -349,7 +361,7 @@ const loadResource = async () => {
 
 const loadSimilarResources = async () => {
   if (!resource.value) return
-  
+
   try {
     const params = {
       category: resource.value.category,
@@ -357,7 +369,7 @@ const loadSimilarResources = async () => {
       sort_by: 'purchase_count' as const,
       sort_order: 'desc' as const
     }
-    
+
     const response = await ResourceService.getResources(params)
     // 过滤掉当前资源
     similarResources.value = response.data
@@ -398,15 +410,15 @@ const renderMarkdown = (content: string) => {
 
 const handlePurchase = async () => {
   if (!isAuthenticated.value) {
-    router.push({ 
-      name: 'Login', 
-      query: { redirect: route.fullPath } 
+    router.push({
+      name: 'Login',
+      query: { redirect: route.fullPath }
     })
     return
   }
 
   if (!resource.value) return
-  
+
   const userId = authStore.user?.id
   if (!userId) return
 
@@ -414,7 +426,7 @@ const handlePurchase = async () => {
   try {
     // 创建订单
     const order = await OrderService.createOrder(resource.value.id, userId)
-    
+
     // 跳转到支付页面
     router.push({
       name: 'OrderDetail',
@@ -433,20 +445,20 @@ const downloadResource = () => {
     ElMessage.warning('资源链接不存在')
     return
   }
-  
+
   window.open(resource.value.resource_url, '_blank')
 }
 
 const requireLogin = () => {
-  router.push({ 
-    name: 'Login', 
-    query: { redirect: route.fullPath } 
+  router.push({
+    name: 'Login',
+    query: { redirect: route.fullPath }
   })
 }
 
 const shareResource = () => {
   if (!resource.value) return
-  
+
   const url = window.location.href
   navigator.clipboard.writeText(url)
     .then(() => {
@@ -469,7 +481,7 @@ const openResourceLink = () => {
     ElMessage.warning('资源链接不存在')
     return
   }
-  
+
   window.open(resource.value.resource_url, '_blank')
 }
 
@@ -491,11 +503,6 @@ const viewResource = (resourceId: string) => {
 </script>
 
 <style scoped>
-.resource-detail-view {
-  min-height: calc(100vh - 64px);
-  background-color: #f8fafc;
-}
-
 .resource-cover {
   transition: box-shadow 300ms;
 }

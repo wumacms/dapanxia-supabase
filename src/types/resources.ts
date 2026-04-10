@@ -193,12 +193,23 @@ export interface ResourceQueryParams {
   user_id?: string;  // 指定用户ID
 }
 
+// 资源快照接口（用于购买记录）
+export interface ResourceSnapshot {
+  resource_url: string;
+  resource_title: string;
+  cover_url: string | null;
+  description: string | null;
+  category: string | null;
+  platform: string | null;
+}
+
 // 订单接口
 export interface Order {
   id: string;
   order_no: string;
   user_id: string;
   resource_id: string;
+  resource_title: string;  // 资源名称（创建订单时保存）
   
   // 支付信息
   amount: number;
@@ -225,6 +236,12 @@ export interface Order {
   
   // 关联信息
   resource?: Resource;
+  
+  // 资源链接（支付成功后保存）
+  resource_url?: string;
+  
+  // 资源快照（从 user_purchases 获取，用于已支付订单）
+  purchase_snapshot?: ResourceSnapshot;
 }
 
 // 创建订单请求接口
@@ -259,6 +276,13 @@ export interface UserPurchase {
   resource_url: string;
   purchased_at: string;
   created_at: string;
+  
+  // 资源快照（购买时保存）
+  resource_title: string;
+  cover_url: string | null;
+  description: string | null;
+  category: string | null;
+  platform: string | null;
   
   // 关联信息
   resource?: Resource;

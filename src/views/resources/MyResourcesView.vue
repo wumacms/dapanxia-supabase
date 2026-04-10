@@ -1,12 +1,11 @@
 <template>
-  <div class="my-resources-view">
-    <div class="max-w-7xl mx-auto px-4 py-8">
+  <div class="bg-gray-50 min-h-[calc(100vh-64px)]">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
       <!-- 面包屑导航 -->
       <div class="mb-6">
         <el-breadcrumb separator="/">
-          <el-breadcrumb-item :to="{ name: 'Resources' }">
-            资源列表
-          </el-breadcrumb-item>
+          <el-breadcrumb-item :to="{ name: 'Home' }">首页</el-breadcrumb-item>
+          <el-breadcrumb-item :to="{ name: 'Resources' }">资源库</el-breadcrumb-item>
           <el-breadcrumb-item>我的资源</el-breadcrumb-item>
         </el-breadcrumb>
       </div>
@@ -14,68 +13,74 @@
       <!-- 页面标题 -->
       <div class="mb-8">
         <h1 class="text-3xl font-bold text-gray-900">我的资源</h1>
-        <p class="mt-2 text-gray-600">
-          管理您发布的网盘资源，包括草稿和已发布资源
-        </p>
+        <p class="mt-2 text-gray-500">管理您发布的网盘资源，包括草稿和已发布资源</p>
       </div>
 
       <!-- 统计卡片 -->
       <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
         <!-- 总资源数 -->
-        <div class="stat-card bg-gradient-to-r from-blue-500 to-blue-600 text-white rounded-xl p-6">
+        <div class="bg-white rounded-xl p-6 shadow-card transition-all duration-300 hover:-translate-y-0.5 hover:shadow-card-hover border-l-4 border-blue-500">
           <div class="flex items-center justify-between">
             <div>
-              <p class="text-sm opacity-90">总资源数</p>
-              <p class="text-3xl font-bold mt-2">{{ stats.total_resources || 0 }}</p>
+              <p class="text-gray-500 text-sm">总资源数</p>
+              <p class="text-3xl font-bold text-gray-900 mt-2">{{ stats.total_resources || 0 }}</p>
             </div>
-            <el-icon class="text-4xl opacity-80">
-              <Folder />
-            </el-icon>
+            <div class="w-12 h-12 rounded-xl bg-blue-100 flex items-center justify-center">
+              <el-icon class="text-2xl text-blue-600">
+                <Folder />
+              </el-icon>
+            </div>
           </div>
         </div>
 
         <!-- 已发布 -->
-        <div class="stat-card bg-gradient-to-r from-green-500 to-green-600 text-white rounded-xl p-6">
+        <div class="bg-white rounded-xl p-6 shadow-card transition-all duration-300 hover:-translate-y-0.5 hover:shadow-card-hover border-l-4 border-green-500">
           <div class="flex items-center justify-between">
             <div>
-              <p class="text-sm opacity-90">已发布</p>
-              <p class="text-3xl font-bold mt-2">{{ stats.published_resources || 0 }}</p>
+              <p class="text-gray-500 text-sm">已发布</p>
+              <p class="text-3xl font-bold text-gray-900 mt-2">{{ stats.published_resources || 0 }}</p>
             </div>
-            <el-icon class="text-4xl opacity-80">
-              <Check />
-            </el-icon>
+            <div class="w-12 h-12 rounded-xl bg-green-100 flex items-center justify-center">
+              <el-icon class="text-2xl text-green-600">
+                <Check />
+              </el-icon>
+            </div>
           </div>
         </div>
 
         <!-- 草稿 -->
-        <div class="stat-card bg-gradient-to-r from-yellow-500 to-yellow-600 text-white rounded-xl p-6">
+        <div class="bg-white rounded-xl p-6 shadow-card transition-all duration-300 hover:-translate-y-0.5 hover:shadow-card-hover border-l-4 border-yellow-500">
           <div class="flex items-center justify-between">
             <div>
-              <p class="text-sm opacity-90">草稿</p>
-              <p class="text-3xl font-bold mt-2">{{ stats.draft_resources || 0 }}</p>
+              <p class="text-gray-500 text-sm">草稿</p>
+              <p class="text-3xl font-bold text-gray-900 mt-2">{{ stats.draft_resources || 0 }}</p>
             </div>
-            <el-icon class="text-4xl opacity-80">
-              <Edit />
-            </el-icon>
+            <div class="w-12 h-12 rounded-xl bg-yellow-100 flex items-center justify-center">
+              <el-icon class="text-2xl text-yellow-600">
+                <Edit />
+              </el-icon>
+            </div>
           </div>
         </div>
 
         <!-- 总收入 -->
-        <div class="stat-card bg-gradient-to-r from-purple-500 to-purple-600 text-white rounded-xl p-6">
+        <div class="bg-white rounded-xl p-6 shadow-card transition-all duration-300 hover:-translate-y-0.5 hover:shadow-card-hover border-l-4 border-purple-500">
           <div class="flex items-center justify-between">
             <div>
-              <p class="text-sm opacity-90">总收入</p>
-              <p class="text-3xl font-bold mt-2">¥{{ stats.total_revenue?.toFixed(2) || '0.00' }}</p>
+              <p class="text-gray-500 text-sm">总收入</p>
+              <p class="text-3xl font-bold text-gray-900 mt-2">¥{{ stats.total_revenue?.toFixed(2) || '0.00' }}</p>
             </div>
-            <el-icon class="text-4xl opacity-80">
-              <Money />
-            </el-icon>
+            <div class="w-12 h-12 rounded-xl bg-purple-100 flex items-center justify-center">
+              <el-icon class="text-2xl text-purple-600">
+                <Money />
+              </el-icon>
+            </div>
           </div>
         </div>
       </div>
 
       <!-- 筛选和操作栏 -->
-      <div class="bg-white rounded-xl shadow-md p-6 mb-6">
+      <div class="bg-white rounded-xl p-6 shadow-card mb-6">
         <div class="flex flex-col md:flex-row justify-between items-start md:items-center space-y-4 md:space-y-0">
           <!-- 筛选 -->
           <div class="flex flex-wrap items-center space-x-4">
@@ -148,27 +153,24 @@
       </div>
 
       <!-- 加载状态 -->
-      <div v-if="loading && resources.length === 0" class="text-center py-12">
-        <el-icon class="is-loading text-4xl text-blue-500">
+      <div v-if="loading && resources.length === 0" class="flex flex-col items-center justify-center py-12">
+        <el-icon class="text-4xl text-blue-500 is-loading">
           <Loading />
         </el-icon>
-        <p class="mt-4 text-gray-600">加载资源中...</p>
+        <p class="mt-4 text-gray-500">加载资源中...</p>
       </div>
 
       <!-- 空状态 -->
-      <div v-else-if="resources.length === 0" class="text-center py-12">
-        <el-icon class="text-6xl text-gray-400 mb-4">
+      <div v-else-if="resources.length === 0" class="flex flex-col items-center justify-center py-12 bg-white rounded-xl shadow-card">
+        <el-icon class="text-6xl text-gray-300 mb-4">
           <FolderOpened />
         </el-icon>
         <h3 class="text-xl font-semibold text-gray-900 mb-2">暂无资源</h3>
-        <p class="text-gray-600 mb-6">您还没有发布任何资源</p>
-        <el-button type="primary" @click="navigateToCreate" size="large">
-          发布第一个资源
-        </el-button>
+        <p class="text-gray-500">您还没有发布任何资源</p>
       </div>
 
       <!-- 资源表格 -->
-      <div v-else class="bg-white rounded-xl shadow-md overflow-hidden">
+      <div v-else class="bg-white rounded-xl shadow-card overflow-hidden">
         <div class="overflow-x-auto">
           <table class="min-w-full divide-y divide-gray-200">
             <thead class="bg-gray-50">
@@ -384,9 +386,9 @@ const isAuthenticated = computed(() => authStore.isAuthenticated)
 // 生命周期
 onMounted(() => {
   if (!isAuthenticated.value) {
-    router.push({ 
-      name: 'Login', 
-      query: { redirect: router.currentRoute.value.fullPath } 
+    router.push({
+      name: 'Login',
+      query: { redirect: router.currentRoute.value.fullPath }
     })
   } else {
     loadData()
@@ -536,7 +538,7 @@ const updateVisibility = async (resource: Resource) => {
     await ResourceService.updateResource(resource.id, {
       is_visible: resource.is_visible
     }, userId)
-    
+
     ElMessage.success(resource.is_visible ? '资源已设为可见' : '资源已设为隐藏')
   } catch (error: any) {
     console.error('Error updating resource visibility:', error)
@@ -580,42 +582,3 @@ const deleteResource = (resource: Resource) => {
   )
 }
 </script>
-
-<style scoped>
-.my-resources-view {
-  min-height: calc(100vh - 64px);
-  background-color: #f8fafc;
-}
-
-.stat-card {
-  transition: transform 0.3s ease, box-shadow 0.3s ease;
-}
-
-.stat-card:hover {
-  transform: translateY(-4px);
-  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
-}
-
-/* 表格样式 */
-:deep(.el-table) {
-  border-radius: 12px;
-  overflow: hidden;
-}
-
-:deep(.el-table__header-wrapper) {
-  border-radius: 12px 12px 0 0;
-}
-
-:deep(.el-table__body-wrapper) {
-  border-radius: 0 0 12px 12px;
-}
-
-/* 按钮样式 */
-:deep(.el-button) {
-  transition: all 0.3s ease;
-}
-
-:deep(.el-button:hover) {
-  transform: translateY(-1px);
-}
-</style>

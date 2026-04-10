@@ -28,7 +28,17 @@ export class LantuzPayService {
     const stringSignTemp = stringA + `&key=${this.config.api_key}`
 
     // MD5加密并转为大写
-    return CryptoJS.MD5(stringSignTemp).toString().toUpperCase()
+    const calculatedSign = CryptoJS.MD5(stringSignTemp).toString().toUpperCase()
+    
+    // 调试日志
+    console.log('=== Signature Debug ===')
+    console.log('Original params:', params)
+    console.log('StringA (before key):', stringA)
+    console.log('StringSignTemp (with key):', stringSignTemp)
+    console.log('Calculated sign:', calculatedSign)
+    console.log('========================')
+    
+    return calculatedSign
   }
 
   /**
@@ -50,6 +60,7 @@ export class LantuzPayService {
     const {
       order_no,
       amount,
+      resource_title,
       attach
     } = order
 
@@ -58,35 +69,62 @@ export class LantuzPayService {
       mch_id: this.config.mch_id,
       out_trade_no: order_no,
       total_fee: amount.toFixed(2),
-      body: '网盘资源购买',
+      body: resource_title || '网盘资源购买',  // 使用资源名称作为商品描述
       timestamp: Math.floor(Date.now() / 1000).toString(),
-      notify_url: this.config.notify_url,
+      notify_url: this.config.notify_url
+      // 注意：attach 和 time_expire 是可选参数，不参与签名
+    }
+
+    // 生成签名（只使用必填参数）
+    const sign = this.generateSign(params)
+    
+    // 构建完整的请求参数（包括可选参数）
+    const requestParams = {
+      ...params,
+      sign,
       attach: attach || '',
       time_expire: '30m' // 30分钟过期
     }
 
-    // 生成签名
-    const sign = this.generateSign(params)
-    params.sign = sign
-
     try {
-      const response = await fetch(`${this.config.api_url}/wxpay/native`, {
+      // 开发环境走代理时 base_url 是 /api/wxpay，需要拼接相对路径
+      const endpoint = isDevProxy ? '/native' : '/wxpay/native'
+      const requestBody = new URLSearchParams(requestParams).toString()
+      
+      console.log('=== Request Debug ===')
+      console.log('Endpoint:', `${this.config.api_url}${endpoint}`)
+      console.log('Request body:', requestBody)
+      console.log('=====================')
+      
+      const response = await fetch(`${this.config.api_url}${endpoint}`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/x-www-form-urlencoded',
         },
-        body: new URLSearchParams(params).toString()
+        body: requestBody
       })
 
       const result = await response.json()
+      
+      // 打印完整响应用于调试
+      console.log('Payment API response:', result)
 
       if (result.code !== 0) {
-        throw new Error(result.msg || '创建支付订单失败')
+        throw new Error(result.msg || `支付创建失败 (${result.code})`)
+      }
+
+      // 兼容多种可能的字段名格式
+      const qrCodeUrl = result.data?.QRcode_url || result.data?.qrcode_url || result.data?.code_url || result.data?.codeUrl || ''
+      const codeUrl = result.data?.code_url || result.data?.QRcode_url || result.data?.qrcode_url || ''
+
+      if (!qrCodeUrl && !codeUrl) {
+        console.error('Payment response data:', result.data)
+        throw new Error('支付接口返回数据格式异常，缺少二维码URL')
       }
 
       return {
-        qr_code_url: result.data.QRcode_url,
-        code_url: result.data.code_url
+        qr_code_url: qrCodeUrl,
+        code_url: codeUrl
       }
     } catch (error: any) {
       console.error('Error creating native payment:', error)
@@ -114,7 +152,9 @@ export class LantuzPayService {
     params.sign = sign
 
     try {
-      const response = await fetch(`${this.config.api_url}/wxpay/get_pay_order`, {
+      // 开发环境走代理时 base_url 是 /api/wxpay，需要拼接相对路径
+      const endpoint = isDevProxy ? '/get_pay_order' : '/wxpay/get_pay_order'
+      const response = await fetch(`${this.config.api_url}${endpoint}`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/x-www-form-urlencoded',
@@ -221,7 +261,8 @@ export class LantuzPayService {
     params.sign = sign
 
     try {
-      const response = await fetch(`${this.config.api_url}/wxpay/refund_order`, {
+      const endpoint = isDevProxy ? '/refund_order' : '/wxpay/refund_order'
+      const response = await fetch(`${this.config.api_url}${endpoint}`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/x-www-form-urlencoded',
@@ -265,7 +306,8 @@ export class LantuzPayService {
     params.sign = sign
 
     try {
-      const response = await fetch(`${this.config.api_url}/wxpay/get_refund_order`, {
+      const endpoint = isDevProxy ? '/get_refund_order' : '/wxpay/get_refund_order'
+      const response = await fetch(`${this.config.api_url}${endpoint}`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/x-www-form-urlencoded',
@@ -306,7 +348,8 @@ export class LantuzPayService {
     params.sign = sign
 
     try {
-      const response = await fetch(`${this.config.api_url}/wxpay/get_wechat_openid`, {
+      const endpoint = isDevProxy ? '/get_wechat_openid' : '/wxpay/get_wechat_openid'
+      const response = await fetch(`${this.config.api_url}${endpoint}`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/x-www-form-urlencoded',
@@ -375,8 +418,15 @@ export class LantuzPayService {
 const lantuzPayConfig: LantuzPayConfig = {
   mch_id: import.meta.env.VITE_LANTUZ_MCH_ID || '',
   api_key: import.meta.env.VITE_LANTUZ_API_KEY || '',
-  api_url: import.meta.env.VITE_LANTUZ_API_URL || 'https://api.ltzf.cn/api',
+  // 开发环境使用代理路径 /api/wxpay，生产环境使用完整 URL + /api
+  api_url: import.meta.env.DEV 
+    ? '/api/wxpay'  // 开发环境走 Vite 代理
+    : (import.meta.env.VITE_LANTUZ_API_URL || 'https://api.ltzf.cn/api'),
   notify_url: import.meta.env.VITE_LANTUZ_NOTIFY_URL || ''
 }
 
+// 开发环境代理时 base_url 不含 /wxpay，需要单独拼接
+const isDevProxy = import.meta.env.DEV
+
 export const lantuzPayService = new LantuzPayService(lantuzPayConfig)
+export { isDevProxy }

@@ -73,10 +73,16 @@ const goBack = () => {
 </script>
 
 <template>
-  <div class="min-h-screen bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center p-4">
-    <div class="bg-white rounded-2xl shadow-2xl w-full max-w-md p-8">
+  <div class="min-h-screen flex items-center justify-center p-4 bg-gradient-to-br from-indigo-500 to-purple-600">
+    <div class="w-full max-w-md bg-white rounded-2xl p-10 shadow-2xl">
+      <!-- Logo -->
       <div class="text-center mb-8">
-        <h1 class="text-3xl font-bold text-gray-800 mb-2">修改密码</h1>
+        <div class="w-16 h-16 rounded-2xl bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center mx-auto mb-4">
+          <el-icon class="text-white text-3xl">
+            <Folder />
+          </el-icon>
+        </div>
+        <h1 class="text-2xl font-bold text-gray-900 mb-2">修改密码</h1>
         <p class="text-gray-500">请输入您的当前密码和新密码</p>
       </div>
 
@@ -123,7 +129,7 @@ const goBack = () => {
         <el-form-item class="mt-6">
           <el-button
             type="primary"
-            class="w-full"
+            class="w-full !h-12 !text-base"
             :loading="loading"
             @click="handleSubmit(formRef)"
           >
@@ -131,8 +137,8 @@ const goBack = () => {
           </el-button>
         </el-form-item>
 
-        <el-form-item>
-          <el-button class="w-full" @click="goBack">
+        <el-form-item class="mb-0">
+          <el-button class="w-full !h-12" @click="goBack">
             返回首页
           </el-button>
         </el-form-item>
@@ -140,3 +146,8 @@ const goBack = () => {
     </div>
   </div>
 </template>
+
+<script lang="ts">
+import { Folder } from '@element-plus/icons-vue'
+export { Folder }
+</script>

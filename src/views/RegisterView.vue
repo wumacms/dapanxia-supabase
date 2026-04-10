@@ -66,10 +66,16 @@ const goToLogin = () => {
 </script>
 
 <template>
-  <div class="min-h-screen bg-gradient-to-br from-purple-600 to-pink-500 flex items-center justify-center p-4">
-    <div class="bg-white rounded-2xl shadow-2xl w-full max-w-md p-8">
+  <div class="min-h-screen flex items-center justify-center p-4 bg-gradient-to-br from-indigo-500 to-purple-600">
+    <div class="w-full max-w-md bg-white rounded-2xl p-10 shadow-2xl">
+      <!-- Logo -->
       <div class="text-center mb-8">
-        <h1 class="text-3xl font-bold text-gray-800 mb-2">创建账户</h1>
+        <div class="w-16 h-16 rounded-2xl bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center mx-auto mb-4">
+          <el-icon class="text-white text-3xl">
+            <Folder />
+          </el-icon>
+        </div>
+        <h1 class="text-2xl font-bold text-gray-900 mb-2">创建账户</h1>
         <p class="text-gray-500">注册以开始使用</p>
       </div>
 
@@ -113,7 +119,7 @@ const goToLogin = () => {
         <el-form-item class="mt-6">
           <el-button
             type="primary"
-            class="w-full"
+            class="w-full !h-12 !text-base"
             :loading="loading"
             native-type="submit"
           >
@@ -131,3 +137,8 @@ const goToLogin = () => {
     </div>
   </div>
 </template>
+
+<script lang="ts">
+import { Folder } from '@element-plus/icons-vue'
+export { Folder }
+</script>

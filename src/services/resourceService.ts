@@ -105,17 +105,20 @@ export class ResourceService {
       (data || []).map(async (resource) => {
         const tags = await this.getResourceTags(resource.id)
         
-        // 如果使用 resources 表，需要获取用户头像
+        // 如果使用 resources 表，需要获取用户头像 - 优雅处理 RLS 限制
         let author_avatar = resource.author_avatar || null
         if (tableName === 'resources') {
           try {
-            const { data: profile } = await supabase
+            const { data: profile, error: profileError } = await supabase
               .from('profiles')
               .select('avatar_url')
               .eq('id', resource.user_id)
-              .single()
+              .maybeSingle()
             
-            if (profile) {
+            if (profileError) {
+              // 可能是 RLS 策略限制，静默处理
+              console.warn('Profile query blocked by RLS:', profileError.message)
+            } else if (profile) {
               author_avatar = profile.avatar_url
             }
           } catch (profileError) {
@@ -167,16 +170,19 @@ export class ResourceService {
       return null
     }
 
-    // 获取用户头像
+    // 获取用户头像 - 优雅处理 RLS 限制
     let author_avatar = null
     try {
-      const { data: profile } = await supabase
+      const { data: profile, error: profileError } = await supabase
         .from('profiles')
         .select('avatar_url')
         .eq('id', resource.user_id)
-        .single()
+        .maybeSingle()
       
-      if (profile) {
+      if (profileError) {
+        // 可能是 RLS 策略限制，静默处理
+        console.warn('Profile query blocked by RLS, using default avatar:', profileError.message)
+      } else if (profile) {
         author_avatar = profile.avatar_url
       }
     } catch (profileError) {
@@ -189,8 +195,11 @@ export class ResourceService {
 
     // 检查用户是否已购买该资源
     let hasPurchased = false
+    let purchasedResourceUrl: string | null = null
     if (userId) {
-      hasPurchased = await this.checkUserPurchased(userId, id)
+      const result = await this.checkUserPurchased(userId, id)
+      hasPurchased = result.purchased
+      purchasedResourceUrl = result.resourceUrl || null
     }
 
     // 检查用户是否有编辑权限
@@ -207,8 +216,14 @@ export class ResourceService {
       hasPurchased ||
       canEdit
     ) {
+      // 如果用户已购买且资源链接为空，使用购买快照中的链接
+      const finalResourceUrl = hasPurchased && !resource.resource_url && purchasedResourceUrl 
+        ? purchasedResourceUrl 
+        : resource.resource_url
+
       return {
         ...resource,
+        resource_url: finalResourceUrl,
         tags: tags.map(tag => tag.tag_name),
         has_purchased: hasPurchased,
         can_edit: canEdit,
@@ -482,22 +497,34 @@ export class ResourceService {
   }
 
   /**
-   * 检查用户是否已购买资源
+   * 检查用户是否已购买资源，并返回购买快照
    */
-  static async checkUserPurchased(userId: string, resourceId: string): Promise<boolean> {
-    const { data, error } = await supabase
-      .from('user_purchases')
-      .select('id')
-      .eq('user_id', userId)
-      .eq('resource_id', resourceId)
-      .limit(1)
+  static async checkUserPurchased(userId: string, resourceId: string): Promise<{ purchased: boolean; resourceUrl?: string }> {
+    try {
+      const { data, error } = await supabase
+        .from('user_purchases')
+        .select('id, resource_url')
+        .eq('user_id', userId)
+        .eq('resource_id', resourceId)
+        .limit(1)
 
-    if (error) {
-      console.error('Error checking user purchase:', error)
-      throw error
+      if (error) {
+        console.error('Error checking user purchase:', error)
+        return { purchased: false }
+      }
+
+      if (data && data.length > 0) {
+        return { 
+          purchased: true, 
+          resourceUrl: data[0].resource_url 
+        }
+      }
+
+      return { purchased: false }
+    } catch (err) {
+      console.error('Error checking user purchase:', err)
+      return { purchased: false }
     }
-
-    return data.length > 0
   }
 
   /**
@@ -546,17 +573,19 @@ export class ResourceService {
           .eq('id', purchase.resource_id)
           .single()
 
-        // 获取资源作者头像
+        // 获取资源作者头像 - 优雅处理 RLS 限制
         let author_avatar = null
         if (resource) {
           try {
-            const { data: profile } = await supabase
+            const { data: profile, error: profileError } = await supabase
               .from('profiles')
               .select('avatar_url')
               .eq('id', resource.user_id)
-              .single()
+              .maybeSingle()
             
-            if (profile) {
+            if (profileError) {
+              console.warn('Profile query blocked by RLS:', profileError.message)
+            } else if (profile) {
               author_avatar = profile.avatar_url
             }
           } catch (profileError) {
