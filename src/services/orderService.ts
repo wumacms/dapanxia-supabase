@@ -296,6 +296,7 @@ export class OrderService {
 
   /**
    * 创建购买记录
+   * 如果记录已存在（唯一约束冲突），则忽略错误
    */
   private static async createPurchaseRecord(orderId: string): Promise<void> {
     // 获取订单和资源信息
@@ -311,9 +312,10 @@ export class OrderService {
     }
 
     // 创建购买记录（保存资源快照）
+    // 使用 upsert + ON CONFLICT DO NOTHING 处理重复购买的情况
     const { error } = await supabase
       .from('user_purchases')
-      .insert({
+      .upsert({
         user_id: order.user_id,
         resource_id: order.resource_id,
         order_id: order.id,
@@ -324,17 +326,26 @@ export class OrderService {
         description: order.resources.description,
         category: order.resources.category,
         platform: order.resources.platform
+      }, {
+        onConflict: 'user_id,resource_id',  // 唯一约束列
+        ignoreDuplicates: true  // 冲突时忽略
       })
 
-    if (error) {
+    // 忽略唯一约束冲突错误（code: 23505）
+    // 其他错误仍然抛出
+    if (error && error.code !== '23505') {
       console.error('Error creating purchase record:', error)
       throw error
     }
 
-    // 增加资源的购买数量
-    await supabase.rpc('increment_purchase_count', {
-      resource_id: order.resource_id
-    })
+    // 增加资源的购买数量（忽略可能的重复错误）
+    try {
+      await supabase.rpc('increment_purchase_count', {
+        resource_id: order.resource_id
+      })
+    } catch (e) {
+      console.warn('increment_purchase_count RPC failed, ignoring:', e)
+    }
   }
 
   /**
