@@ -91,7 +91,13 @@ export class LantuzPayService {
       const endpoint = isDevProxy 
         ? '/native' 
         : (isEdgeProxy ? '' : '/wxpay/native')  // Edge Function 代理不需要路径
-      const requestBody = new URLSearchParams(requestParams).toString()
+      
+      // Edge Function 代理时，action 需要放在 body 中
+      const bodyParams = isEdgeProxy 
+        ? { ...requestParams, action: 'native' }
+        : requestParams
+      
+      const requestBody = new URLSearchParams(bodyParams).toString()
       
       console.log('=== Request Debug ===')
       console.log('Endpoint:', `${this.config.api_url}${endpoint}`)
@@ -99,9 +105,7 @@ export class LantuzPayService {
       console.log('=====================')
       
       // 构建请求URL
-      const requestUrl = isEdgeProxy 
-        ? `${this.config.api_url}?action=native`  // Edge Function: 通过query参数指定action
-        : `${this.config.api_url}${endpoint}`
+      const requestUrl = `${this.config.api_url}${endpoint}`
       
       const response = await fetch(requestUrl, {
         method: 'POST',
@@ -164,16 +168,19 @@ export class LantuzPayService {
         ? '/get_pay_order' 
         : (isEdgeProxy ? '' : '/wxpay/get_pay_order')
       
-      const requestUrl = isEdgeProxy 
-        ? `${this.config.api_url}?action=get_pay_order`
-        : `${this.config.api_url}${endpoint}`
+      // Edge Function 代理时，action 需要放在 body 中
+      const bodyParams = isEdgeProxy 
+        ? { ...params, action: 'get_pay_order' }
+        : params
+      
+      const requestUrl = `${this.config.api_url}${endpoint}`
         
       const response = await fetch(requestUrl, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/x-www-form-urlencoded',
         },
-        body: new URLSearchParams(params).toString()
+        body: new URLSearchParams(bodyParams).toString()
       })
 
       const result = await response.json()
@@ -279,16 +286,19 @@ export class LantuzPayService {
         ? '/refund_order' 
         : (isEdgeProxy ? '' : '/wxpay/refund_order')
       
-      const requestUrl = isEdgeProxy 
-        ? `${this.config.api_url}?action=refund_order`
-        : `${this.config.api_url}${endpoint}`
+      // Edge Function 代理时，action 需要放在 body 中
+      const bodyParams = isEdgeProxy 
+        ? { ...params, action: 'refund_order' }
+        : params
+      
+      const requestUrl = `${this.config.api_url}${endpoint}`
         
       const response = await fetch(requestUrl, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/x-www-form-urlencoded',
         },
-        body: new URLSearchParams(params).toString()
+        body: new URLSearchParams(bodyParams).toString()
       })
 
       const result = await response.json()
@@ -331,16 +341,19 @@ export class LantuzPayService {
         ? '/get_refund_order' 
         : (isEdgeProxy ? '' : '/wxpay/get_refund_order')
       
-      const requestUrl = isEdgeProxy 
-        ? `${this.config.api_url}?action=get_refund_order`
-        : `${this.config.api_url}${endpoint}`
+      // Edge Function 代理时，action 需要放在 body 中
+      const bodyParams = isEdgeProxy 
+        ? { ...params, action: 'get_refund_order' }
+        : params
+      
+      const requestUrl = `${this.config.api_url}${endpoint}`
         
       const response = await fetch(requestUrl, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/x-www-form-urlencoded',
         },
-        body: new URLSearchParams(params).toString()
+        body: new URLSearchParams(bodyParams).toString()
       })
 
       const result = await response.json()
@@ -380,16 +393,19 @@ export class LantuzPayService {
         ? '/get_wechat_openid' 
         : (isEdgeProxy ? '' : '/wxpay/get_wechat_openid')
       
-      const requestUrl = isEdgeProxy 
-        ? `${this.config.api_url}?action=get_wechat_openid`
-        : `${this.config.api_url}${endpoint}`
+      // Edge Function 代理时，action 需要放在 body 中
+      const bodyParams = isEdgeProxy 
+        ? { ...params, action: 'get_wechat_openid' }
+        : params
+      
+      const requestUrl = `${this.config.api_url}${endpoint}`
         
       const response = await fetch(requestUrl, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/x-www-form-urlencoded',
         },
-        body: new URLSearchParams(params).toString()
+        body: new URLSearchParams(bodyParams).toString()
       })
 
       const result = await response.json()
