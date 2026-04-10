@@ -114,58 +114,18 @@ src/
 
 ### 数据库配置
 
-在 Supabase Dashboard 中创建 `profiles` 表：
+完整的 Supabase 配置已整理在 [`supabase-config.sql`](./supabase-config.sql) 文件中，包含：
 
-```sql
-CREATE TABLE profiles (
-  id UUID REFERENCES auth.users PRIMARY KEY,
-  avatar_url TEXT,
-  created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
-  updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
-);
+- **profiles 表** - 存储用户头像 URL
+- **Storage avatars Bucket** - 存储头像文件
+- **RLS 策略** - 确保用户数据隔离
 
--- 启用 RLS
-ALTER TABLE profiles ENABLE ROW LEVEL SECURITY;
+**配置步骤：**
 
--- 允许用户读取自己的 profile
-CREATE POLICY "Users can view own profile" ON profiles
-  FOR SELECT USING (auth.uid() = id);
-
--- 允许用户更新自己的 profile
-CREATE POLICY "Users can update own profile" ON profiles
-  FOR UPDATE USING (auth.uid() = id);
-
--- 允许用户插入自己的 profile
-CREATE POLICY "Users can insert own profile" ON profiles
-  FOR INSERT WITH CHECK (auth.uid() = id);
-```
-
-### Storage Bucket 配置
-
-1. 进入 Supabase Dashboard → **Storage**
-2. 创建新 Bucket，命名为 `avatars`
-3. 设置为 **Public** bucket
-4. 配置 RLS 策略：
-
-```sql
--- 允许已认证用户上传头像
-CREATE POLICY "Authenticated users can upload avatars" ON storage.objects
-  FOR INSERT WITH CHECK (
-    bucket_id = 'avatars' AND 
-    auth.role() = 'authenticated'
-  );
-
--- 允许已认证用户更新自己的头像
-CREATE POLICY "Authenticated users can update own avatars" ON storage.objects
-  FOR UPDATE USING (
-    bucket_id = 'avatars' AND 
-    auth.uid()::text = (storage.foldername(name))[1]
-  );
-
--- 允许所有人读取头像
-CREATE POLICY "Public access to avatars" ON storage.objects
-  FOR SELECT USING (bucket_id = 'avatars');
-```
+1. 进入 Supabase Dashboard → **SQL Editor**
+2. 打开 [`supabase-config.sql`](./supabase-config.sql) 文件
+3. 复制全部内容并执行
+4. 进入 **Storage** → 确认 `avatars` bucket 已创建且为 **Public**
 
 ## 🛠️ 技术栈
 

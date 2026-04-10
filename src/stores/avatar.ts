@@ -9,8 +9,12 @@ export const useAvatarStore = defineStore('avatar', () => {
   const error = ref<string | null>(null)
 
   // 获取带版本参数的完整 URL
+  // 如果 URL 已包含 v 参数，直接返回；否则添加新版本号
   function getAvatarUrlWithVersion(baseUrl: string | null): string | null {
     if (!baseUrl) return null
+    // 如果已有版本参数，直接返回（profiles 表已存带时间戳的 URL）
+    if (baseUrl.includes('?v=')) return baseUrl
+    // 否则添加版本号
     const v = avatarVersion.value || Date.now()
     return `${baseUrl}?v=${v}`
   }
@@ -44,6 +48,11 @@ export const useAvatarStore = defineStore('avatar', () => {
     error.value = null
 
     try {
+      // 验证 userId 格式（防止路径遍历攻击）
+      if (!userId || typeof userId !== 'string' || userId.includes('/')) {
+        throw new Error('无效的用户ID')
+      }
+
       // 验证文件类型
       const allowedTypes = ['image/jpeg', 'image/png', 'image/gif', 'image/webp']
       if (!allowedTypes.includes(file.type)) {
@@ -56,8 +65,11 @@ export const useAvatarStore = defineStore('avatar', () => {
         throw new Error('图片大小不能超过 2MB')
       }
 
-      // 生成文件名: userId/avatar.ext
-      const fileExt = file.name.split('.').pop() || 'jpg'
+      // 生成文件名: userId/avatar.ext（只允许用户访问自己的文件夹）
+      const fileExt = file.name.split('.').pop()?.toLowerCase() || 'jpg'
+      if (!['jpg', 'jpeg', 'png', 'gif', 'webp'].includes(fileExt)) {
+        throw new Error('不支持的文件扩展名')
+      }
       const fileName = `${userId}/avatar.${fileExt}`
 
       // 上传到 Supabase Storage
@@ -121,24 +133,30 @@ export const useAvatarStore = defineStore('avatar', () => {
     const { data } = supabase.storage.from('avatars').getPublicUrl(fileName)
 
     if (data.publicUrl) {
-      // 添加时间戳参数破坏缓存
+      // 验证返回的文件名与请求的一致（防止路径篡改）
+      if (!fileName.startsWith(`${userId}/`)) {
+        throw new Error('文件路径验证失败')
+      }
+
+      // 生成时间戳版本 URL（破坏浏览器缓存）
       const timestamp = Date.now()
       avatarVersion.value = timestamp
       const urlWithVersion = `${data.publicUrl}?v=${timestamp}`
 
       avatarUrl.value = urlWithVersion
 
-      // profiles 表存储不带版本参数的原始 URL
+      // profiles 表存储带时间戳的 URL，确保每次获取最新头像
       const { error: updateError } = await supabase
         .from('profiles')
-        .upsert({
-          id: userId,
-          avatar_url: data.publicUrl,
+        .update({
+          avatar_url: urlWithVersion,
           updated_at: new Date().toISOString(),
         })
+        .eq('id', userId)
 
       if (updateError) {
         console.error('更新头像URL失败:', updateError)
+        throw updateError
       }
     }
   }
@@ -149,6 +167,11 @@ export const useAvatarStore = defineStore('avatar', () => {
     error.value = null
 
     try {
+      // 验证 userId
+      if (!userId || typeof userId !== 'string' || userId.includes('/')) {
+        throw new Error('无效的用户ID')
+      }
+
       const fileName = `${userId}/avatar.jpg`
 
       const { error: deleteError } = await supabase.storage
@@ -158,10 +181,14 @@ export const useAvatarStore = defineStore('avatar', () => {
       if (deleteError) throw deleteError
 
       // 清除 profiles 表中的 avatar_url
-      await supabase
+      const { error: updateError } = await supabase
         .from('profiles')
         .update({ avatar_url: null, updated_at: new Date().toISOString() })
         .eq('id', userId)
+
+      if (updateError) {
+        console.error('清除头像URL失败:', updateError)
+      }
 
       avatarUrl.value = null
     } catch (e: any) {
