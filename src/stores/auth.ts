@@ -49,6 +49,15 @@ export const useAuthStore = defineStore('auth', () => {
     user.value = null
   }
 
+  async function updatePassword(newPassword: string) {
+    const { data, error } = await supabase.auth.updateUser({
+      password: newPassword,
+    })
+    if (error) throw error
+    user.value = data.user
+    return data
+  }
+
   return {
     user,
     loading,
@@ -58,5 +67,6 @@ export const useAuthStore = defineStore('auth', () => {
     signIn,
     signUp,
     signOut,
+    updatePassword,
   }
 })

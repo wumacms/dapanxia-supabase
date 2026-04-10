@@ -136,7 +136,12 @@ const stats = [
           </el-descriptions-item>
         </el-descriptions>
 
-        <el-button type="danger" class="w-full" @click="handleLogout">退出登录</el-button>
+        <div class="flex gap-3">
+          <el-button type="primary" class="flex-1" @click="router.push('/change-password')">
+            修改密码
+          </el-button>
+          <el-button type="danger" class="flex-1" @click="handleLogout">退出登录</el-button>
+        </div>
       </div>
     </el-drawer>
   </div>

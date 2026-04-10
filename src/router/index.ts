@@ -21,6 +21,12 @@ const routes: RouteRecordRaw[] = [
     component: () => import('../views/HomeView.vue'),
     meta: { requiresAuth: true },
   },
+  {
+    path: '/change-password',
+    name: 'ChangePassword',
+    component: () => import('../views/ChangePasswordView.vue'),
+    meta: { requiresAuth: true },
+  },
 ]
 
 const router = createRouter({
