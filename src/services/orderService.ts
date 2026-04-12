@@ -177,6 +177,11 @@ export class OrderService {
       query = query.lte('created_at', options.endDate + 'T23:59:59')
     }
 
+    // 关键词搜索（在数据库层面处理）
+    if (options?.search && options.search.trim()) {
+      query = query.or(`order_no.ilike.%${options.search}%,resource_title.ilike.%${options.search}%`)
+    }
+
     const { data, error, count } = await query
       .order('created_at', { ascending: false })
       .range(from, to)
@@ -184,17 +189,6 @@ export class OrderService {
     if (error) {
       console.error('Error fetching user orders:', error)
       throw error
-    }
-
-    // 关键词搜索过滤（在内存中处理，因为需要关联查询）
-    let filteredData = data || []
-    if (options?.search && options.search.trim()) {
-      const searchLower = options.search.toLowerCase()
-      filteredData = filteredData.filter(order =>
-        order.order_no?.toLowerCase().includes(searchLower) ||
-        order.resource_title?.toLowerCase().includes(searchLower) ||
-        order.resource?.title?.toLowerCase().includes(searchLower)
-      )
     }
 
     // 获取所有订单ID
@@ -237,13 +231,13 @@ export class OrderService {
     const total_pages = Math.ceil(total / limit)
 
     return {
-      data: filteredData,
+      data: data || [],
       pagination: {
         page,
         limit,
-        total: filteredData.length,
-        total_pages: Math.ceil(filteredData.length / limit),
-        has_next: page < Math.ceil(filteredData.length / limit),
+        total: total,
+        total_pages: total_pages,
+        has_next: page < total_pages,
         has_prev: page > 1
       }
     }
