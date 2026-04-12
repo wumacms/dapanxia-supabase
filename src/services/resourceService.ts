@@ -28,7 +28,8 @@ export class ResourceService {
       status = ResourceStatus.PUBLISHED,
       sort_by = 'created_at',
       sort_order = 'desc',
-      user_id = undefined
+      user_id = undefined,
+      include_hidden = false
     } = params
 
     // 确定使用哪个表/视图
@@ -75,7 +76,9 @@ export class ResourceService {
       query = query.eq('status', status)
       
       // 显示状态筛选（仅已发布资源可以设置可见性）
-      if (status === ResourceStatus.PUBLISHED) {
+      // 只有在公开查询（且未指定 user_id）时才过滤隐藏资源
+      // "我的资源"页面通过 include_hidden=true 来显示隐藏的资源
+      if (status === ResourceStatus.PUBLISHED && !include_hidden) {
         query = query.eq('is_visible', true)
       }
     }
@@ -407,7 +410,8 @@ export class ResourceService {
   static async getUserResources(userId: string, params: ResourceQueryParams = {}): Promise<PaginatedResponse<Resource>> {
     const queryParams: ResourceQueryParams = {
       ...params,
-      user_id: userId
+      user_id: userId,
+      include_hidden: true  // 我的资源页面需要显示所有资源，包括隐藏的
     }
     
     // 如果 status 是 'all' 或 undefined，则移除 status 筛选，让用户可以查看所有状态的资源

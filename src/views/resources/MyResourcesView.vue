@@ -185,6 +185,9 @@
                   状态
                 </th>
                 <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  可见性
+                </th>
+                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                   统计
                 </th>
                 <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
@@ -246,21 +249,27 @@
 
                 <!-- 状态 -->
                 <td class="px-6 py-4 whitespace-nowrap">
-                  <div class="flex items-center">
-                    <el-tag
-                      :type="getStatusType(resource.status)"
-                      size="small"
-                      class="mr-2"
-                    >
-                      {{ getStatusLabel(resource.status) }}
-                    </el-tag>
+                  <el-tag
+                    :type="getStatusType(resource.status)"
+                    size="small"
+                  >
+                    {{ getStatusLabel(resource.status) }}
+                  </el-tag>
+                </td>
+
+                <!-- 可见性 -->
+                <td class="px-6 py-4 whitespace-nowrap">
+                  <div v-if="resource.status === 'published'" class="flex items-center space-x-2">
+                    <span class="text-sm text-gray-600">
+                      {{ resource.is_visible ? '可见' : '隐藏' }}
+                    </span>
                     <el-switch
-                      v-if="resource.status === 'published'"
                       v-model="resource.is_visible"
                       @change="updateVisibility(resource)"
                       size="small"
                     />
                   </div>
+                  <span v-else class="text-sm text-gray-400">-</span>
                 </td>
 
                 <!-- 统计 -->

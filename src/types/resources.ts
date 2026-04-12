@@ -191,6 +191,7 @@ export interface ResourceQueryParams {
   sort_by?: 'created_at' | 'price' | 'view_count' | 'purchase_count';
   sort_order?: 'asc' | 'desc';
   user_id?: string;  // 指定用户ID
+  include_hidden?: boolean;  // 是否包含隐藏的资源（用于"我的资源"页面）
 }
 
 // 资源快照接口（用于购买记录）
