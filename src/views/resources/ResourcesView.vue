@@ -140,7 +140,7 @@
             v-for="resource in resources"
             :key="resource.id"
             :resource="resource"
-            @click="viewResource(resource.id)"
+            @card-click="viewResource"
           />
         </div>
 

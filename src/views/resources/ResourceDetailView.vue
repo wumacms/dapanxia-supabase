@@ -274,7 +274,7 @@
                 :key="similar.id"
                 :resource="similar"
                 class="h-full"
-                @click="viewResource(similar.id)"
+                @card-click="viewResource"
               />
             </div>
           </div>
@@ -285,7 +285,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted } from 'vue'
+import { ref, computed, onMounted, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { ElMessage } from 'element-plus'
 import { marked } from 'marked'
@@ -332,6 +332,14 @@ const showResourceLink = computed(() => {
 onMounted(() => {
   loadResource()
 })
+
+// 监听路由参数变化，重新加载资源数据
+watch(
+  () => route.params.id,
+  () => {
+    loadResource()
+  }
+)
 
 // 方法
 const loadResource = async () => {

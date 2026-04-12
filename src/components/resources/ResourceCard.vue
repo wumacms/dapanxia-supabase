@@ -1,5 +1,5 @@
 <template>
-  <div class="group resource-card" @click="handleClick">
+  <div class="group resource-card" @click="emit('card-click', props.resource.id)">
     <!-- 封面图片 -->
     <div class="resource-cover relative h-48 overflow-hidden rounded-t-lg">
       <img
@@ -167,12 +167,8 @@ const formatTime = (timeString: string): string => {
 }
 
 const emit = defineEmits<{
-  click: [id: string]
+  (e: 'card-click', id: string): void
 }>()
-
-const handleClick = () => {
-  emit('click', props.resource.id)
-}
 </script>
 
 <style scoped>
