@@ -30,14 +30,6 @@ export class LantuzPayService {
     // MD5加密并转为大写
     const calculatedSign = CryptoJS.MD5(stringSignTemp).toString().toUpperCase()
     
-    // 调试日志
-    console.log('=== Signature Debug ===')
-    console.log('Original params:', params)
-    console.log('StringA (before key):', stringA)
-    console.log('StringSignTemp (with key):', stringSignTemp)
-    console.log('Calculated sign:', calculatedSign)
-    console.log('========================')
-    
     return calculatedSign
   }
 
@@ -99,11 +91,6 @@ export class LantuzPayService {
       
       const requestBody = new URLSearchParams(bodyParams).toString()
       
-      console.log('=== Request Debug ===')
-      console.log('Endpoint:', `${this.config.api_url}${endpoint}`)
-      console.log('Request body:', requestBody)
-      console.log('=====================')
-      
       // 构建请求URL
       const requestUrl = `${this.config.api_url}${endpoint}`
       
@@ -116,9 +103,6 @@ export class LantuzPayService {
       })
 
       const result = await response.json()
-      
-      // 打印完整响应用于调试
-      console.log('Payment API response:', result)
 
       if (result.code !== 0) {
         throw new Error(result.msg || `支付创建失败 (${result.code})`)

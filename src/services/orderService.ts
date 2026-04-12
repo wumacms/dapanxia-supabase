@@ -405,7 +405,7 @@ export class OrderService {
         resource_id: order.resource_id
       })
     } catch (e) {
-      console.warn('increment_purchase_count RPC failed, ignoring:', e)
+      // increment_purchase_count RPC 失败，静默处理
     }
   }
 

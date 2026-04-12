@@ -561,9 +561,7 @@ const deleteOrder = async (order: Order) => {
       const userId = authStore.user?.id
       if (!userId) throw new Error('用户未登录')
 
-      console.log('Deleting order:', order.id, order.order_no)
       await OrderService.deleteOrder(order.id, userId)
-      console.log('Order deleted successfully')
 
       ElMessage.success('订单已删除')
 

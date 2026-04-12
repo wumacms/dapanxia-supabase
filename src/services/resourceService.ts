@@ -120,12 +120,11 @@ export class ResourceService {
             
             if (profileError) {
               // 可能是 RLS 策略限制，静默处理
-              console.warn('Profile query blocked by RLS:', profileError.message)
             } else if (profile) {
               author_avatar = profile.avatar_url
             }
           } catch (profileError) {
-            console.warn('Failed to fetch profile avatar for resource:', resource.id, profileError)
+            // 继续处理，头像可为空
           }
         }
         
@@ -184,12 +183,10 @@ export class ResourceService {
       
       if (profileError) {
         // 可能是 RLS 策略限制，静默处理
-        console.warn('Profile query blocked by RLS, using default avatar:', profileError.message)
       } else if (profile) {
         author_avatar = profile.avatar_url
       }
     } catch (profileError) {
-      console.warn('Failed to fetch profile avatar:', profileError)
       // 继续处理，头像可为空
     }
 
@@ -588,12 +585,12 @@ export class ResourceService {
               .maybeSingle()
             
             if (profileError) {
-              console.warn('Profile query blocked by RLS:', profileError.message)
+              // 静默处理
             } else if (profile) {
               author_avatar = profile.avatar_url
             }
           } catch (profileError) {
-            console.warn('Failed to fetch profile avatar:', profileError)
+            // 静默处理
           }
         }
 
