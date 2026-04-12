@@ -30,7 +30,7 @@ jobs:
       - name: Build
         env:
           VITE_SUPABASE_URL: ${{ secrets.VITE_SUPABASE_URL }}
-          VITE_SUPABASE_PUBLISHABLE_DEFAULT_KEY: ${{ secrets.VITE_SUPABASE_ANON_KEY }}
+          VITE_SUPABASE_PUBLISHABLE_DEFAULT_KEY: ${{ secrets.VITE_SUPABASE_PUBLISHABLE_DEFAULT_KEY }}
           VITE_LANTUZ_MCH_ID: ${{ secrets.VITE_LANTUZ_MCH_ID }}
           VITE_LANTUZ_API_KEY: ${{ secrets.VITE_LANTUZ_API_KEY }}
           VITE_LANTUZ_API_URL: ${{ secrets.VITE_LANTUZ_API_URL }}
