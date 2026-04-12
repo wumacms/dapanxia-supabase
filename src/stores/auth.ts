@@ -40,6 +40,12 @@ export const useAuthStore = defineStore('auth', () => {
       password,
     })
     if (error) throw error
+    
+    // 如果 session 为 null，说明邮箱已注册但未验证
+    if (!data.session && data.user && !data.user.email_confirmed_at) {
+      return { ...data, alreadyRegistered: true }
+    }
+    
     return data
   }
 

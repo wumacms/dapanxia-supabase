@@ -20,31 +20,15 @@ const form = reactive({
 
 // 密码复杂度验证规则
 const validatePassword = (_rule: any, value: string, callback: any) => {
+  const regex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]).{8,}$/
+
   if (!value) {
     callback(new Error('请输入密码'))
-    return
+  } else if (!regex.test(value)) {
+    callback(new Error('密码需≥8位，包含大小写字母、数字和特殊字符'))
+  } else {
+    callback()
   }
-  if (value.length < 8) {
-    callback(new Error('密码长度至少为8位'))
-    return
-  }
-  if (!/[A-Z]/.test(value)) {
-    callback(new Error('密码必须包含大写字母'))
-    return
-  }
-  if (!/[a-z]/.test(value)) {
-    callback(new Error('密码必须包含小写字母'))
-    return
-  }
-  if (!/[0-9]/.test(value)) {
-    callback(new Error('密码必须包含数字'))
-    return
-  }
-  if (!/[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]/.test(value)) {
-    callback(new Error('密码必须包含特殊字符'))
-    return
-  }
-  callback()
 }
 
 // 密码强度计算
@@ -96,9 +80,15 @@ const handleRegister = async (formEl: FormInstance | undefined) => {
 
     loading.value = true
     try {
-      await authStore.signUp(form.email, form.password)
-      ElMessage.success('注册成功！请查收验证邮件完成激活。')
-      router.push('/login')
+      const result = await authStore.signUp(form.email, form.password)
+      
+      if (result.alreadyRegistered) {
+        ElMessage.info('该邮箱已注册，验证邮件已发送至您的邮箱，请查收。')
+        router.push('/login')
+      } else {
+        ElMessage.success('注册成功！请查收验证邮件完成激活。')
+        router.push('/login')
+      }
     } catch (error: any) {
       ElMessage.error(getErrorMessage(error))
     } finally {

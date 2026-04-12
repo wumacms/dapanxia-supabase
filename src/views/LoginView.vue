@@ -64,7 +64,7 @@ const goToRegister = () => {
             <Folder />
           </el-icon>
         </div>
-        <h1 class="text-2xl font-bold text-gray-900 mb-2">欢迎回来</h1>
+        <h1 class="text-2xl font-bold text-gray-900 mb-2">登录大盘虾</h1>
         <p class="text-gray-500">登录您的账户以继续</p>
       </div>
 

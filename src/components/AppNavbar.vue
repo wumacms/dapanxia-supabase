@@ -98,7 +98,7 @@ const goToChangePassword = () => {
               </el-icon>
             </div>
             <span class="text-xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
-              网盘资源库
+              大盘虾
             </span>
           </router-link>
 
