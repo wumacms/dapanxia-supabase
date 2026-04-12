@@ -1,7 +1,14 @@
 import { defineStore } from 'pinia'
 import { ref, computed } from 'vue'
-import type { User } from '@supabase/supabase-js'
+import type { User, Session } from '@supabase/supabase-js'
 import { supabase } from '../utils/supabase'
+
+// signUp 返回值类型
+interface SignUpData {
+  user: User | null
+  session: Session | null
+  alreadyRegistered?: boolean
+}
 
 export const useAuthStore = defineStore('auth', () => {
   const user = ref<User | null>(null)
@@ -34,7 +41,7 @@ export const useAuthStore = defineStore('auth', () => {
     return data
   }
 
-  async function signUp(email: string, password: string) {
+  async function signUp(email: string, password: string): Promise<SignUpData> {
     const { data, error } = await supabase.auth.signUp({
       email,
       password,
