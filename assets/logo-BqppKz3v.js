@@ -1,0 +1,1 @@
+var e=`/dapanxia-supabase/logo.png`;export{e as t};
