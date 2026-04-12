@@ -42,7 +42,7 @@
 
             <!-- 封面图片 -->
             <el-form-item label="封面图片" prop="cover_url" class="mb-6">
-              <div class="flex flex-col items-center space-y-4">
+              <div class="flex flex-col items-start space-y-4">
                 <!-- 图片预览 -->
                 <div
                   v-if="form.cover_url"
@@ -194,40 +194,11 @@
 
             <!-- 资源描述 -->
             <el-form-item label="资源描述" prop="description" class="mb-6">
-              <div class="w-full">
-                <div class="mb-2 border-b border-gray-200">
-                  <div class="flex space-x-2">
-                    <el-button
-                      v-for="button in markdownButtons"
-                      :key="button.action"
-                      link
-                      size="small"
-                      @click="insertMarkdown(button.action)"
-                    >
-                      <el-icon>
-                        <component :is="button.icon" />
-                      </el-icon>
-                    </el-button>
-                  </div>
-                </div>
-                <el-input
-                  v-model="form.description"
-                  type="textarea"
-                  :rows="8"
-                  placeholder="请详细描述资源内容，支持Markdown语法..."
-                  resize="none"
-                />
-                <div class="mt-2 text-xs text-gray-500">
-                  <span>支持Markdown语法</span>
-                  <el-link
-                    href="https://www.markdownguide.org/basic-syntax/"
-                    target="_blank"
-                    class="ml-2"
-                  >
-                    查看Markdown指南
-                  </el-link>
-                </div>
-              </div>
+              <MarkdownEditor
+                v-model="form.description"
+                height="400px"
+                placeholder="请详细描述资源内容，支持Markdown语法和图片上传..."
+              />
             </el-form-item>
 
             <!-- 标签 -->
@@ -329,18 +300,13 @@ import { ElMessage } from 'element-plus'
 import {
   Upload,
   Close,
-  InfoFilled,
-  EditPen,
-  Tickets,
-  List,
-  Link,
-  ChatLineSquare,
-  Operation
+  InfoFilled
 } from '@element-plus/icons-vue'
 import { useAuthStore } from '../../stores/auth'
 import { ResourceService } from '../../services/resourceService'
 import { CreateResourceRequest, ResourceCategory, CloudPlatform, ResourceStatus } from '../../types/resources'
 import { ResourceCategoryLabels, CloudPlatformLabels } from '../../types/resources'
+import MarkdownEditor from '../../components/resources/MarkdownEditor.vue'
 
 const router = useRouter()
 const authStore = useAuthStore()
@@ -376,15 +342,6 @@ const popularTags = [
   '软件', '游戏', '学习', '教程', '资料',
   '模板', '工具', '插件', '素材', '音乐',
   '视频', '图片', '文档', '电子书', '代码'
-]
-
-const markdownButtons = [
-  { icon: EditPen, action: 'bold' },
-  { icon: Tickets, action: 'italic' },
-  { icon: List, action: 'list' },
-  { icon: Link, action: 'link' },
-  { icon: ChatLineSquare, action: 'quote' },
-  { icon: Operation, action: 'code' }
 ]
 
 const uploading = ref(false)
@@ -478,49 +435,6 @@ const handleFreeToggle = (isFree: boolean) => {
   } else {
     form.price = 0
   }
-}
-
-const insertMarkdown = (action: string) => {
-  const textarea = document.querySelector('textarea') as HTMLTextAreaElement
-  if (!textarea) return
-
-  const start = textarea.selectionStart
-  const end = textarea.selectionEnd
-  const selectedText = form.description.substring(start, end)
-  let insertText = ''
-
-  switch (action) {
-    case 'bold':
-      insertText = `**${selectedText || '加粗文本'}**`
-      break
-    case 'italic':
-      insertText = `*${selectedText || '斜体文本'}*`
-      break
-    case 'list':
-      insertText = `\n- ${selectedText || '列表项'}`
-      break
-    case 'link':
-      insertText = `[${selectedText || '链接文本'}](https://example.com)`
-      break
-    case 'quote':
-      insertText = `\n> ${selectedText || '引用文本'}`
-      break
-    case 'code':
-      insertText = `\`\`\`\n${selectedText || '代码块'}\n\`\`\``
-      break
-  }
-
-  form.description =
-    form.description.substring(0, start) +
-    insertText +
-    form.description.substring(end)
-
-  // 聚焦到textarea并设置光标位置
-  setTimeout(() => {
-    textarea.focus()
-    const newCursorPos = start + insertText.length
-    textarea.setSelectionRange(newCursorPos, newCursorPos)
-  }, 0)
 }
 
 const saveAsDraft = async () => {

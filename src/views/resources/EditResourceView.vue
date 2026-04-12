@@ -219,40 +219,11 @@
 
             <!-- 资源描述 -->
             <el-form-item label="资源描述" prop="description" class="mb-6">
-              <div class="w-full">
-                <div class="mb-2 border-b border-gray-200">
-                  <div class="flex space-x-2">
-                    <el-button
-                      v-for="button in markdownButtons"
-                      :key="button.action"
-                      link
-                      size="small"
-                      @click="insertMarkdown(button.action)"
-                    >
-                      <el-icon>
-                        <component :is="button.icon" />
-                      </el-icon>
-                    </el-button>
-                  </div>
-                </div>
-                <el-input
-                  v-model="form.description"
-                  type="textarea"
-                  :rows="8"
-                  placeholder="请详细描述资源内容，支持Markdown语法..."
-                  resize="none"
-                />
-                <div class="mt-2 text-xs text-gray-500">
-                  <span>支持Markdown语法</span>
-                  <el-link
-                    href="https://www.markdownguide.org/basic-syntax/"
-                    target="_blank"
-                    class="ml-2"
-                  >
-                    查看Markdown指南
-                  </el-link>
-                </div>
-              </div>
+              <MarkdownEditor
+                v-model="descriptionValue"
+                height="400px"
+                placeholder="请详细描述资源内容，支持Markdown语法和图片上传..."
+              />
             </el-form-item>
 
             <!-- 标签 -->
@@ -316,29 +287,6 @@
             </div>
           </div>
 
-          <!-- 统计信息 -->
-          <div class="form-section bg-gray-50">
-            <h2 class="text-lg font-semibold text-gray-900 mb-4 pb-3 border-b border-gray-200">资源统计</h2>
-            <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
-              <div class="text-center">
-                <p class="text-sm text-gray-600">浏览量</p>
-                <p class="text-2xl font-bold text-gray-900">{{ resource.view_count }}</p>
-              </div>
-              <div class="text-center">
-                <p class="text-sm text-gray-600">购买量</p>
-                <p class="text-2xl font-bold text-gray-900">{{ resource.purchase_count }}</p>
-              </div>
-              <div class="text-center">
-                <p class="text-sm text-gray-600">创建时间</p>
-                <p class="text-lg font-semibold text-gray-900">{{ formatDate(resource.created_at) }}</p>
-              </div>
-              <div class="text-center">
-                <p class="text-sm text-gray-600">更新时间</p>
-                <p class="text-lg font-semibold text-gray-900">{{ formatDate(resource.updated_at) }}</p>
-              </div>
-            </div>
-          </div>
-
           <!-- 表单操作 -->
           <div class="flex justify-between pt-6 border-t border-gray-200">
             <div class="space-x-3">
@@ -379,7 +327,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, reactive, onMounted } from 'vue'
+import { ref, reactive, computed, onMounted } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import type { FormInstance, FormRules } from 'element-plus'
 import { ElMessage } from 'element-plus'
@@ -388,18 +336,13 @@ import {
   CircleCloseFilled,
   Upload,
   Close,
-  InfoFilled,
-  EditPen,
-  Tickets,
-  List,
-  Link,
-  ChatLineSquare,
-  Operation
+  InfoFilled
 } from '@element-plus/icons-vue'
 import { useAuthStore } from '../../stores/auth'
 import { ResourceService } from '../../services/resourceService'
 import { UpdateResourceRequest, Resource, ResourceCategory, CloudPlatform, ResourceStatus } from '../../types/resources'
 import { ResourceCategoryLabels, CloudPlatformLabels } from '../../types/resources'
+import MarkdownEditor from '../../components/resources/MarkdownEditor.vue'
 
 const route = useRoute()
 const router = useRouter()
@@ -439,19 +382,16 @@ const popularTags = [
   '视频', '图片', '文档', '电子书', '代码'
 ]
 
-const markdownButtons = [
-  { icon: EditPen, action: 'bold' },
-  { icon: Tickets, action: 'italic' },
-  { icon: List, action: 'list' },
-  { icon: Link, action: 'link' },
-  { icon: ChatLineSquare, action: 'quote' },
-  { icon: Operation, action: 'code' }
-]
-
 const loading = ref(false)
 const error = ref('')
 const uploading = ref(false)
 const submitting = ref(false)
+
+// 计算属性，确保 description 是 string 类型
+const descriptionValue = computed({
+  get: () => form.description || '',
+  set: (value: string) => { form.description = value }
+})
 
 // 表单验证规则
 const rules: FormRules = {
@@ -624,50 +564,6 @@ const handleFreeToggle = (isFree: boolean) => {
   }
 }
 
-const insertMarkdown = (action: string) => {
-  const textarea = document.querySelector('textarea') as HTMLTextAreaElement
-  if (!textarea) return
-
-  const start = textarea.selectionStart
-  const end = textarea.selectionEnd
-  const description = form.description || ''
-  const selectedText = description.substring(start, end)
-  let insertText = ''
-
-  switch (action) {
-    case 'bold':
-      insertText = `**${selectedText || '加粗文本'}**`
-      break
-    case 'italic':
-      insertText = `*${selectedText || '斜体文本'}*`
-      break
-    case 'list':
-      insertText = `\n- ${selectedText || '列表项'}`
-      break
-    case 'link':
-      insertText = `[${selectedText || '链接文本'}](https://example.com)`
-      break
-    case 'quote':
-      insertText = `\n> ${selectedText || '引用文本'}`
-      break
-    case 'code':
-      insertText = `\`\`\`\n${selectedText || '代码块'}\n\`\`\``
-      break
-  }
-
-  form.description =
-    description.substring(0, start) +
-    insertText +
-    description.substring(end)
-
-  // 聚焦到textarea并设置光标位置
-  setTimeout(() => {
-    textarea.focus()
-    const newCursorPos = start + insertText.length
-    textarea.setSelectionRange(newCursorPos, newCursorPos)
-  }, 0)
-}
-
 const saveAsDraft = async () => {
   form.status = ResourceStatus.DRAFT
   await submitForm()
@@ -729,17 +625,6 @@ const previewResource = () => {
 
 const cancel = () => {
   router.back()
-}
-
-const formatDate = (dateString: string) => {
-  const date = new Date(dateString)
-  return date.toLocaleDateString('zh-CN', {
-    year: 'numeric',
-    month: 'short',
-    day: 'numeric',
-    hour: '2-digit',
-    minute: '2-digit'
-  })
 }
 </script>
 

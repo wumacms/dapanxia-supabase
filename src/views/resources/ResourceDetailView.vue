@@ -288,8 +288,34 @@
 import { ref, computed, onMounted, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { ElMessage } from 'element-plus'
-import { marked } from 'marked'
+import { Marked } from 'marked'
+import { markedHighlight } from 'marked-highlight'
+import hljs from 'highlight.js'
 import DOMPurify from 'dompurify'
+
+// 创建 marked 实例并配置 highlight
+const markedInstance = new Marked(
+  markedHighlight({
+    langPrefix: 'hljs language-',
+    highlight(code: string, lang: string) {
+      const language = hljs.getLanguage(lang) ? lang : 'plaintext'
+      return hljs.highlight(code, { language }).value
+    }
+  })
+)
+
+// 配置 DOMPurify 保留 highlight.js 相关的 class
+const dompurifyConfig = {
+  ADD_TAGS: ['span'],
+  ADD_ATTR: ['class']
+}
+
+// 同步渲染 Markdown
+const renderMarkdown = (content: string): string => {
+  // @ts-ignore - marked.parse 支持同步模式
+  const html = markedInstance.parse(content || '', { async: false })
+  return DOMPurify.sanitize(html, dompurifyConfig)
+}
 import {
   Loading,
   CircleCloseFilled,
@@ -411,11 +437,6 @@ const formatDate = (dateString: string) => {
   })
 }
 
-const renderMarkdown = (content: string) => {
-  const rawHtml = marked.parse(content, { async: false }) as string
-  return DOMPurify.sanitize(rawHtml)
-}
-
 const handlePurchase = async () => {
   if (!isAuthenticated.value) {
     router.push({
@@ -519,98 +540,208 @@ const viewResource = (resourceId: string) => {
   box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -4px rgba(0, 0, 0, 0.1);
 }
 
+/* Markdown 内容样式 - 与 MarkdownEditor 预览一致 */
 .markdown-content {
   color: #374151;
-  line-height: 1.625;
 }
 
-.markdown-content h1,
-.markdown-content h2,
-.markdown-content h3,
-.markdown-content h4 {
+.markdown-content :deep(h1),
+.markdown-content :deep(h2),
+.markdown-content :deep(h3),
+.markdown-content :deep(h4),
+.markdown-content :deep(h5),
+.markdown-content :deep(h6) {
   font-weight: 600;
   color: #111827;
-  margin-bottom: 0.75rem;
+  margin-top: 1.5em;
+  margin-bottom: 0.5em;
+  line-height: 1.3;
 }
 
-.markdown-content h1 {
+.markdown-content :deep(h1) {
+  font-size: 1.75rem;
+}
+
+.markdown-content :deep(h2) {
   font-size: 1.5rem;
-  line-height: 2rem;
+  padding-bottom: 0.5rem;
+  border-bottom: 1px solid #e5e7eb;
 }
 
-.markdown-content h2 {
-  font-size: 1.25rem;
-  line-height: 1.75rem;
-}
-
-.markdown-content h3 {
+.markdown-content :deep(h3) {
   font-size: 1.125rem;
-  line-height: 1.75rem;
 }
 
-.markdown-content p {
+.markdown-content :deep(h4) {
+  font-size: 1rem;
+}
+
+.markdown-content :deep(p) {
   margin-bottom: 1rem;
+  line-height: 1.75;
 }
 
-.markdown-content ul,
-.markdown-content ol {
-  margin-bottom: 1rem;
-  padding-left: 1.5rem;
+.markdown-content :deep(a) {
+  color: #3b82f6;
+  text-decoration: underline;
 }
 
-.markdown-content li {
-  margin-bottom: 0.25rem;
+.markdown-content :deep(a:hover) {
+  color: #2563eb;
 }
 
-.markdown-content code {
+.markdown-content :deep(code) {
   background-color: #f3f4f6;
-  color: #1f2937;
-  padding: 0.1rem 0.25rem;
+  color: #dc2626;
+  padding: 0.125rem 0.375rem;
   border-radius: 0.25rem;
-  font-size: 0.875rem;
+  font-size: 0.875em;
+  font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', 'Consolas', monospace;
 }
 
-.markdown-content pre {
-  background-color: #111827;
-  color: #f3f4f6;
+.markdown-content :deep(pre) {
+  background-color: #f6f8fa;
   padding: 1rem;
   border-radius: 0.5rem;
   overflow-x: auto;
   margin-bottom: 1rem;
+  font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', 'Consolas', monospace;
+  font-size: 0.875rem;
+  line-height: 1.6;
+  border: 1px solid #e1e4e8;
 }
 
-.markdown-content blockquote {
+.markdown-content :deep(pre code) {
+  background: none !important;
+  color: inherit !important;
+  padding: 0;
+  font-family: inherit;
+  font-size: inherit;
+}
+
+/* highlight.js GitHub Light 主题 */
+.markdown-content :deep(.hljs-comment),
+.markdown-content :deep(.hljs-quote) {
+  color: #6a737d;
+  font-style: italic;
+}
+
+.markdown-content :deep(.hljs-keyword),
+.markdown-content :deep(.hljs-selector-tag),
+.markdown-content :deep(.hljs-literal),
+.markdown-content :deep(.hljs-type),
+.markdown-content :deep(.hljs-addition) {
+  color: #d73a49;
+}
+
+.markdown-content :deep(.hljs-number),
+.markdown-content :deep(.hljs-string),
+.markdown-content :deep(.hljs-meta .hljs-meta-string),
+.markdown-content :deep(.hljs-doctag),
+.markdown-content :deep(.hljs-regexp) {
+  color: #032f62;
+}
+
+.markdown-content :deep(.hljs-title),
+.markdown-content :deep(.hljs-section),
+.markdown-content :deep(.hljs-name),
+.markdown-content :deep(.hljs-selector-id),
+.markdown-content :deep(.hljs-selector-class) {
+  color: #6f42c1;
+}
+
+.markdown-content :deep(.hljs-attribute),
+.markdown-content :deep(.hljs-attr),
+.markdown-content :deep(.hljs-variable),
+.markdown-content :deep(.hljs-template-variable),
+.markdown-content :deep(.hljs-class .hljs-title),
+.markdown-content :deep(.hljs-built_in) {
+  color: #005cc5;
+}
+
+.markdown-content :deep(.hljs-symbol),
+.markdown-content :deep(.hljs-bullet),
+.markdown-content :deep(.hljs-subst),
+.markdown-content :deep(.hljs-meta),
+.markdown-content :deep(.hljs-meta .hljs-keyword),
+.markdown-content :deep(.hljs-selector-attr),
+.markdown-content :deep(.hljs-selector-pseudo),
+.markdown-content :deep(.hljs-link) {
+  color: #e36209;
+}
+
+.markdown-content :deep(.hljs-deletion) {
+  color: #b31d28;
+  background-color: #ffeef0;
+}
+
+.markdown-content :deep(.hljs-emphasis) {
+  font-style: italic;
+}
+
+.markdown-content :deep(.hljs-strong) {
+  font-weight: bold;
+}
+
+.markdown-content :deep(blockquote) {
   border-left: 4px solid #3b82f6;
   padding-left: 1rem;
   font-style: italic;
-  color: #4b5563;
+  color: #6b7280;
+  margin-bottom: 1rem;
+  background-color: #f9fafb;
+  padding: 0.75rem 1rem;
+  border-radius: 0 0.25rem 0.25rem 0;
+}
+
+.markdown-content :deep(ul),
+.markdown-content :deep(ol) {
+  padding-left: 1.5rem;
   margin-bottom: 1rem;
 }
 
-.markdown-content a {
-  color: #2563eb;
-  text-decoration: underline;
+.markdown-content :deep(li) {
+  margin-bottom: 0.375rem;
+  line-height: 1.6;
 }
 
-.markdown-content a:hover {
-  color: #1e40af;
+.markdown-content :deep(img) {
+  max-width: 100%;
+  height: auto;
+  border-radius: 0.5rem;
+  margin: 1rem 0;
 }
 
-.markdown-content table {
+.markdown-content :deep(hr) {
+  border: 0;
+  border-top: 1px solid #e5e7eb;
+  margin: 1.5rem 0;
+}
+
+.markdown-content :deep(table) {
   width: 100%;
   border-collapse: collapse;
   margin-bottom: 1rem;
 }
 
-.markdown-content th,
-.markdown-content td {
+.markdown-content :deep(th),
+.markdown-content :deep(td) {
   border: 1px solid #d1d5db;
   padding: 0.5rem 1rem;
+  text-align: left;
 }
 
-.markdown-content th {
+.markdown-content :deep(th) {
   background-color: #f3f4f6;
   font-weight: 600;
+}
+
+.markdown-content :deep(tr:nth-child(even)) {
+  background-color: #f9fafb;
+}
+
+.markdown-content :deep(del) {
+  color: #9ca3af;
 }
 
 /* 响应式调整 */

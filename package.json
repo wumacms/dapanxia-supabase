@@ -15,7 +15,9 @@
     "crypto-js": "^4.2.0",
     "dompurify": "^3.3.3",
     "element-plus": "^2.13.6",
+    "highlight.js": "^11.11.1",
     "marked": "^18.0.0",
+    "marked-highlight": "^2.2.4",
     "pinia": "^3.0.4",
     "vue": "^3.5.32",
     "vue-router": "^5.0.4"
