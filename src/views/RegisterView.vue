@@ -113,12 +113,8 @@ const goToLogin = () => {
     <div class="w-full max-w-md bg-white rounded-2xl p-10 shadow-2xl">
       <!-- Logo -->
       <div class="text-center mb-8">
-        <div class="w-16 h-16 rounded-2xl bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center mx-auto mb-4">
-          <el-icon class="text-white text-3xl">
-            <Folder />
-          </el-icon>
-        </div>
-        <h1 class="text-2xl font-bold text-gray-900 mb-2">注册大盘虾</h1>
+        <img src="/logo.png" alt="大盘侠" class="w-28 h-auto mx-auto mb-4" />
+        <h1 class="text-2xl font-bold text-gray-900 mb-2">注册大盘侠</h1>
         <p class="text-gray-500">注册以开始使用</p>
       </div>
 

@@ -117,14 +117,7 @@ const goToChangePassword = () => {
         <div class="flex items-center">
           <!-- Logo -->
           <router-link to="/" class="flex items-center flex-shrink-0">
-            <div class="w-8 h-8 rounded-lg bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center mr-3">
-              <el-icon class="text-white text-lg">
-                <Folder />
-              </el-icon>
-            </div>
-            <span class="text-xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
-              大盘虾
-            </span>
+            <img src="/logo_nav.png" alt="大盘侠" class="h-12 w-auto" />
           </router-link>
 
           <!-- 导航链接 - 仅登录后显示 -->
