@@ -6,7 +6,7 @@ import tailwindcss from '@tailwindcss/vite'
 export default defineConfig(({ mode }) => {
   const env = loadEnv(mode, process.cwd(), '')
   return {
-    base: '/',
+    base: env.VITE_APP_BASE_PATH,
     plugins: [vue(), tailwindcss()],
     server: {
       proxy: {
