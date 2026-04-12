@@ -297,6 +297,14 @@
                     >
                       下载资源
                     </el-button>
+                    <el-button
+                      v-if="order.payment_status === 'cancelled'"
+                      type="danger"
+                      size="small"
+                      @click="deleteOrder(order)"
+                    >
+                      删除订单
+                    </el-button>
                   </div>
                 </td>
               </tr>
@@ -324,7 +332,7 @@
 <script setup lang="ts">
 import { ref, computed, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
-import { ElMessage } from 'element-plus'
+import { ElMessage, ElMessageBox } from 'element-plus'
 import {
   List,
   Clock,
@@ -512,5 +520,43 @@ const downloadResource = (order: Order) => {
 
 const browseResources = () => {
   router.push('/resources')
+}
+
+const deleteOrder = async (order: Order) => {
+  ElMessageBox.confirm(
+    '确定要删除此订单吗？删除后无法恢复。',
+    '删除订单确认',
+    {
+      confirmButtonText: '确定',
+      cancelButtonText: '取消',
+      type: 'warning'
+    }
+  ).then(async () => {
+    try {
+      const userId = authStore.user?.id
+      if (!userId) throw new Error('用户未登录')
+
+      console.log('Deleting order:', order.id, order.order_no)
+      await OrderService.deleteOrder(order.id, userId)
+      console.log('Order deleted successfully')
+
+      ElMessage.success('订单已删除')
+
+      // 如果当前页只有一条记录且不是第一页，则回到上一页
+      if (orders.value.length === 1 && currentPage.value > 1) {
+        currentPage.value--
+      }
+
+      // 重新加载订单列表
+      await loadOrders()
+      // 更新统计数据
+      await loadStats()
+    } catch (err: any) {
+      console.error('Error deleting order:', err)
+      ElMessage.error(err.message || '删除订单失败')
+    }
+  }).catch(() => {
+    // 用户点击了取消
+  })
 }
 </script>

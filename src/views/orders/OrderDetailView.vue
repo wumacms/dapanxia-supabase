@@ -526,8 +526,25 @@ const loadOrder = async () => {
 
     order.value = loadedOrder
 
-    // 如果是待支付状态，加载二维码并开始轮询
+    // 如果是待支付状态，检查是否已过期
     if (loadedOrder.payment_status === 'pending') {
+      const isExpired = await OrderService.checkOrderExpired(loadedOrder.id)
+      if (isExpired) {
+        // 订单已过期，更新状态
+        await OrderService.updatePaymentStatus(
+          loadedOrder.id,
+          OrderStatus.CANCELLED,
+          undefined,
+          undefined,
+          undefined
+        )
+        ElMessage.warning('订单已过期')
+        // 重新加载订单信息（状态已更新）
+        order.value = await OrderService.getOrder(orderId, userId)
+        return
+      }
+
+      // 订单未过期，加载二维码并开始轮询
       await loadQRCode()
       startPolling()
       startCountdown()
@@ -627,6 +644,12 @@ const startCountdown = () => {
   const remainingTime = Math.max(0, Math.floor((expiresAt - now) / 1000))
 
   countdown.value = remainingTime
+
+  // 如果剩余时间已经为0，立即检查过期状态
+  if (remainingTime <= 0) {
+    checkOrderExpired()
+    return
+  }
 
   const timer = setInterval(() => {
     if (countdown.value <= 0) {
@@ -811,6 +834,7 @@ const goBack = () => {
   display: -webkit-box;
   -webkit-box-orient: vertical;
   -webkit-line-clamp: 2;
+  line-clamp: 2;
 }
 
 /* 状态横幅动画 */

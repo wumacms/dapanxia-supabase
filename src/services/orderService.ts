@@ -239,6 +239,33 @@ export class OrderService {
   }
 
   /**
+   * 删除订单
+   */
+  static async deleteOrder(orderId: string, userId: string): Promise<void> {
+    // 检查订单是否存在且属于该用户
+    const order = await this.getOrder(orderId, userId)
+    if (!order) {
+      throw new Error('订单不存在')
+    }
+
+    // 只能删除已取消的订单
+    if (order.payment_status !== OrderStatus.CANCELLED) {
+      throw new Error('只能删除已取消的订单')
+    }
+
+    const { error } = await supabase
+      .from('orders')
+      .delete()
+      .eq('id', orderId)
+      .eq('user_id', userId)
+
+    if (error) {
+      console.error('Error deleting order:', error)
+      throw new Error('删除订单失败')
+    }
+  }
+
+  /**
    * 更新订单支付信息
    */
   static async updatePaymentStatus(
