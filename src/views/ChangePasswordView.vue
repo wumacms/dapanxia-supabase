@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, reactive } from 'vue'
+import { ref, reactive, computed } from 'vue'
 import { useRouter } from 'vue-router'
 import { ElMessage, type FormInstance, type FormRules } from 'element-plus'
 import { Lock } from '@element-plus/icons-vue'
@@ -18,6 +18,37 @@ const form = reactive({
   confirmPassword: '',
 })
 
+// 密码复杂度验证规则（与注册页面保持一致）
+const validatePassword = (_rule: any, value: string, callback: any) => {
+  const regex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]).{8,}$/
+
+  if (!value) {
+    callback(new Error('请输入密码'))
+  } else if (!regex.test(value)) {
+    callback(new Error('密码需≥8位，包含大小写字母、数字和特殊字符'))
+  } else {
+    callback()
+  }
+}
+
+// 密码强度计算（与注册页面保持一致）
+const passwordStrength = computed(() => {
+  const pwd = form.newPassword
+  if (!pwd) return { level: 0, text: '', color: '' }
+
+  let score = 0
+  if (pwd.length >= 8) score++
+  if (pwd.length >= 12) score++
+  if (/[A-Z]/.test(pwd)) score++
+  if (/[a-z]/.test(pwd)) score++
+  if (/[0-9]/.test(pwd)) score++
+  if (/[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]/.test(pwd)) score++
+
+  if (score <= 2) return { level: 1, text: '弱', color: 'bg-red-500' }
+  if (score <= 4) return { level: 2, text: '中等', color: 'bg-yellow-500' }
+  return { level: 3, text: '强', color: 'bg-green-500' }
+})
+
 const validateConfirmPassword = (_rule: any, value: string, callback: any) => {
   if (value === '') {
     callback(new Error('请再次输入新密码'))
@@ -34,7 +65,7 @@ const rules: FormRules = {
   ],
   newPassword: [
     { required: true, message: '请输入新密码', trigger: 'blur' },
-    { min: 6, message: '密码长度至少为6位', trigger: 'blur' },
+    { validator: validatePassword, trigger: 'blur' },
   ],
   confirmPassword: [
     { required: true, validator: validateConfirmPassword, trigger: 'blur' },
@@ -104,11 +135,28 @@ const goBack = () => {
           <el-input
             v-model="form.newPassword"
             type="password"
-            placeholder="请输入新密码"
+            placeholder="请输入新密码（至少8位，包含大小写字母、数字和特殊字符）"
             :prefix-icon="Lock"
             show-password
             clearable
           />
+          <!-- 密码强度指示器 -->
+          <div v-if="form.newPassword" class="mt-2">
+            <div class="flex gap-1 mb-1">
+              <div 
+                v-for="i in 3" :key="i"
+                class="h-1 flex-1 rounded-full transition-all duration-300"
+                :class="i <= passwordStrength.level ? passwordStrength.color : 'bg-gray-200'"
+              />
+            </div>
+            <p class="text-xs" :class="{
+              'text-red-500': passwordStrength.level === 1,
+              'text-yellow-500': passwordStrength.level === 2,
+              'text-green-500': passwordStrength.level === 3,
+            }">
+              密码强度：{{ passwordStrength.text }}（需包含：大写字母、小写字母、数字、特殊字符）
+            </p>
+          </div>
         </el-form-item>
 
         <el-form-item prop="confirmPassword" label="确认新密码">
