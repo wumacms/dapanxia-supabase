@@ -7,7 +7,8 @@
     "dev": "vite",
     "build": "vue-tsc && vite build",
     "preview": "vite preview",
-    "type-check": "vue-tsc --noEmit"
+    "type-check": "vue-tsc --noEmit",
+    "deploy": "npm run build && npx gh-pages -d dist"
   },
   "dependencies": {
     "@element-plus/icons-vue": "^2.3.2",

@@ -1,0 +1,47 @@
+name: Deploy to GitHub Pages
+
+on:
+  push:
+    branches: [main]
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v2
+        with:
+          version: 8
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: 'pnpm'
+
+      - name: Install dependencies
+        run: pnpm install
+
+      - name: Build
+        env:
+          VITE_SUPABASE_URL: ${{ secrets.VITE_SUPABASE_URL }}
+          VITE_SUPABASE_PUBLISHABLE_DEFAULT_KEY: ${{ secrets.VITE_SUPABASE_ANON_KEY }}
+          VITE_LANTUZ_MCH_ID: ${{ secrets.VITE_LANTUZ_MCH_ID }}
+          VITE_LANTUZ_API_KEY: ${{ secrets.VITE_LANTUZ_API_KEY }}
+          VITE_LANTUZ_API_URL: ${{ secrets.VITE_LANTUZ_API_URL }}
+          VITE_LANTUZ_NOTIFY_URL: ${{ secrets.VITE_LANTUZ_NOTIFY_URL }}
+          VITE_APP_TITLE: ${{ secrets.VITE_APP_TITLE }}
+          VITE_APP_DESCRIPTION: ${{ secrets.VITE_APP_DESCRIPTION }}
+          VITE_STORAGE_AVATARS_BUCKET: ${{ secrets.VITE_STORAGE_AVATARS_BUCKET }}
+          VITE_STORAGE_RESOURCE_COVERS_BUCKET: ${{ secrets.VITE_STORAGE_RESOURCE_COVERS_BUCKET }}
+        run: pnpm run build
+
+      - name: Deploy to GitHub Pages
+        uses: peaceiris/actions-gh-pages@v3
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ./dist
+          publish_branch: gh-pages
