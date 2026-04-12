@@ -22,8 +22,8 @@ const loadData = async () => {
   try {
     // 并行加载数据
     const [hotRes, newRes] = await Promise.all([
-      ResourceService.getHotResources(5),
-      ResourceService.getNewResources(5)
+      ResourceService.getHotResources(20),
+      ResourceService.getNewResources(20)
     ])
 
     hotResources.value = hotRes
