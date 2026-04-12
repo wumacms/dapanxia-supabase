@@ -289,14 +289,16 @@ const goToChangePassword = () => {
       </div>
 
       <!-- 操作按钮 -->
-      <div class="space-y-3">
+      <el-form-item class="mb-3">
         <el-button type="primary" class="w-full" @click="goToChangePassword">
           修改密码
         </el-button>
+      </el-form-item>
+      <el-form-item class="mb-0">
         <el-button type="danger" plain class="w-full" @click="handleLogout">
           退出登录
         </el-button>
-      </div>
+      </el-form-item>
     </div>
   </el-drawer>
 </template>
