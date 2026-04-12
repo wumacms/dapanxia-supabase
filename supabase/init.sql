@@ -306,6 +306,9 @@ CREATE POLICY "orders_update_own" ON orders
 CREATE POLICY "orders_update_system" ON orders
   FOR UPDATE USING (auth.jwt() ->> 'role' = 'service_role');
 
+CREATE POLICY "orders_delete_own" ON orders
+  FOR DELETE USING (auth.uid() = user_id);
+
 -- 用户购买记录 RLS 策略
 CREATE POLICY "user_purchases_select_own" ON user_purchases
   FOR SELECT USING (auth.uid() = user_id);
