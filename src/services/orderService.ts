@@ -140,21 +140,61 @@ export class OrderService {
 
   /**
    * 获取用户订单列表
+   * @param userId 用户ID
+   * @param page 页码
+   * @param limit 每页数量
+   * @param options 筛选选项
    */
-  static async getUserOrders(userId: string, page: number = 1, limit: number = 20): Promise<PaginatedResponse<Order>> {
+  static async getUserOrders(
+    userId: string,
+    page: number = 1,
+    limit: number = 20,
+    options?: {
+      status?: string
+      startDate?: string
+      endDate?: string
+      search?: string
+    }
+  ): Promise<PaginatedResponse<Order>> {
     const from = (page - 1) * limit
     const to = from + limit - 1
 
-    const { data, error, count } = await supabase
+    let query = supabase
       .from('orders')
       .select('*', { count: 'exact' })
       .eq('user_id', userId)
+
+    // 状态筛选
+    if (options?.status && options.status !== 'all') {
+      query = query.eq('payment_status', options.status)
+    }
+
+    // 时间范围筛选
+    if (options?.startDate) {
+      query = query.gte('created_at', options.startDate)
+    }
+    if (options?.endDate) {
+      query = query.lte('created_at', options.endDate + 'T23:59:59')
+    }
+
+    const { data, error, count } = await query
       .order('created_at', { ascending: false })
       .range(from, to)
 
     if (error) {
       console.error('Error fetching user orders:', error)
       throw error
+    }
+
+    // 关键词搜索过滤（在内存中处理，因为需要关联查询）
+    let filteredData = data || []
+    if (options?.search && options.search.trim()) {
+      const searchLower = options.search.toLowerCase()
+      filteredData = filteredData.filter(order =>
+        order.order_no?.toLowerCase().includes(searchLower) ||
+        order.resource_title?.toLowerCase().includes(searchLower) ||
+        order.resource?.title?.toLowerCase().includes(searchLower)
+      )
     }
 
     // 获取所有订单ID
@@ -197,13 +237,13 @@ export class OrderService {
     const total_pages = Math.ceil(total / limit)
 
     return {
-      data: data || [],
+      data: filteredData,
       pagination: {
         page,
         limit,
-        total,
-        total_pages,
-        has_next: page < total_pages,
+        total: filteredData.length,
+        total_pages: Math.ceil(filteredData.length / limit),
+        has_next: page < Math.ceil(filteredData.length / limit),
         has_prev: page > 1
       }
     }

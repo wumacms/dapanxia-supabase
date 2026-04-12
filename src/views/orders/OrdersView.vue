@@ -404,7 +404,26 @@ const loadOrders = async () => {
     const userId = authStore.user?.id
     if (!userId) return
 
-    const response = await OrderService.getUserOrders(userId, currentPage.value, pageSize.value)
+    // 构建筛选参数
+    const options: any = {}
+    
+    // 状态筛选
+    if (filterStatus.value !== 'all') {
+      options.status = filterStatus.value
+    }
+    
+    // 时间范围筛选
+    if (dateRange.value && dateRange.value.length === 2) {
+      options.startDate = dateRange.value[0].toISOString()
+      options.endDate = dateRange.value[1].toISOString()
+    }
+    
+    // 关键词搜索
+    if (searchQuery.value.trim()) {
+      options.search = searchQuery.value.trim()
+    }
+
+    const response = await OrderService.getUserOrders(userId, currentPage.value, pageSize.value, options)
     orders.value = response.data
     totalOrders.value = response.pagination.total
   } catch (error) {
