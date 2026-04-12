@@ -5,7 +5,7 @@
       <div class="mb-6">
         <el-breadcrumb separator="/">
           <el-breadcrumb-item :to="{ name: 'Home' }">首页</el-breadcrumb-item>
-          <el-breadcrumb-item :to="{ name: 'Resources' }">资源库</el-breadcrumb-item>
+          <el-breadcrumb-item :to="{ name: 'MyResources' }">我的资源</el-breadcrumb-item>
           <el-breadcrumb-item>发布新资源</el-breadcrumb-item>
         </el-breadcrumb>
       </div>

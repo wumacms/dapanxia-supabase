@@ -29,6 +29,18 @@ const isActive = (path: string) => {
   if (path === '/') {
     return route.path === '/'
   }
+  
+  // 特殊处理：发布新资源页面 (/resources/create) 应该高亮"我的资源"菜单，而不是"资源库"
+  if (route.path === '/resources/create') {
+    return path === '/my-resources'
+  }
+  
+  // 特殊处理：编辑资源页面 (/resources/:id/edit) 应该高亮"我的资源"菜单，而不是"资源库"
+  if (route.path.startsWith('/resources/') && route.path.endsWith('/edit')) {
+    return path === '/my-resources'
+  }
+  
+  // 其他页面正常匹配
   return route.path.startsWith(path)
 }
 
