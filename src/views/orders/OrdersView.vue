@@ -16,7 +16,7 @@
       </div>
 
       <!-- 统计卡片 -->
-      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+      <div class="grid grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
         <!-- 总订单数 -->
         <div class="bg-white rounded-xl p-6 shadow-card transition-all duration-300 hover:-translate-y-0.5 hover:shadow-card-hover border-l-4 border-blue-500">
           <div class="flex items-center justify-between">
@@ -80,15 +80,15 @@
 
       <!-- 筛选和操作栏 -->
       <div class="bg-white rounded-xl p-6 shadow-card mb-6">
-        <div class="flex flex-col md:flex-row justify-between items-start md:items-center space-y-4 md:space-y-0">
-          <!-- 筛选 -->
-          <div class="flex flex-wrap items-center space-x-4">
-            <!-- 状态筛选 -->
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
+          <!-- 状态筛选 -->
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-2">订单状态</label>
             <el-select
               v-model="filterStatus"
               placeholder="所有状态"
               size="large"
-              style="width: 150px"
+              class="w-full"
               @change="loadOrders"
             >
               <el-option label="所有状态" value="all" />
@@ -98,8 +98,11 @@
               <el-option label="已取消" value="cancelled" />
               <el-option label="已退款" value="refunded" />
             </el-select>
+          </div>
 
-            <!-- 时间范围 -->
+          <!-- 时间范围 -->
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-2">时间范围</label>
             <el-date-picker
               v-model="dateRange"
               type="daterange"
@@ -107,16 +110,19 @@
               start-placeholder="开始日期"
               end-placeholder="结束日期"
               size="large"
-              style="width: 250px"
+              style="width: 100%; min-width: 200px"
               @change="loadOrders"
             />
+          </div>
 
-            <!-- 搜索 -->
+          <!-- 搜索 -->
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-2">关键词搜索</label>
             <el-input
               v-model="searchQuery"
               placeholder="搜索订单号或资源名称..."
               size="large"
-              style="width: 200px"
+              class="w-full"
               clearable
               @input="handleSearch"
             >
@@ -127,7 +133,7 @@
           </div>
 
           <!-- 操作按钮 -->
-          <div class="flex space-x-3">
+          <div class="flex items-end space-x-2">
             <el-button
               size="large"
               @click="refreshData"

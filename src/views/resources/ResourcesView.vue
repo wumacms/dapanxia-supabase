@@ -34,7 +34,7 @@
         </div>
 
         <!-- 筛选条件 -->
-        <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
           <!-- 分类筛选 -->
           <div>
             <label class="block text-sm font-medium text-gray-700 mb-2">资源分类</label>

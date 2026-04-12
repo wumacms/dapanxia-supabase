@@ -17,7 +17,7 @@
       </div>
 
       <!-- 统计卡片 -->
-      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+      <div class="grid grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
         <!-- 总资源数 -->
         <div class="bg-white rounded-xl p-6 shadow-card transition-all duration-300 hover:-translate-y-0.5 hover:shadow-card-hover border-l-4 border-blue-500">
           <div class="flex items-center justify-between">
@@ -81,40 +81,46 @@
 
       <!-- 筛选和操作栏 -->
       <div class="bg-white rounded-xl p-6 shadow-card mb-6">
-        <div class="flex flex-col md:flex-row justify-between items-start md:items-center space-y-4 md:space-y-0">
-          <!-- 筛选 -->
-          <div class="flex flex-wrap items-center space-x-4">
-            <!-- 状态筛选 -->
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+          <!-- 状态筛选 -->
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-2">资源状态</label>
             <el-select
               v-model="filterStatus"
               placeholder="所有状态"
               size="large"
-              style="width: 150px"
+              class="w-full"
               @change="loadResources"
             >
               <el-option label="所有状态" value="all" />
               <el-option label="已发布" value="published" />
               <el-option label="草稿" value="draft" />
             </el-select>
+          </div>
 
-            <!-- 价格筛选 -->
+          <!-- 价格筛选 -->
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-2">价格筛选</label>
             <el-select
               v-model="filterPrice"
               placeholder="价格筛选"
               size="large"
-              style="width: 150px"
+              class="w-full"
               @change="loadResources"
             >
               <el-option label="所有价格" value="all" />
               <el-option label="免费" value="free" />
               <el-option label="付费" value="paid" />
             </el-select>
+          </div>
 
-            <!-- 排序 -->
+          <!-- 排序 -->
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-2">排序方式</label>
             <el-select
               v-model="sortBy"
               size="large"
-              style="width: 150px"
+              class="w-full"
               @change="loadResources"
             >
               <el-option label="最新发布" value="newest" />
@@ -127,7 +133,7 @@
           </div>
 
           <!-- 操作按钮 -->
-          <div class="flex space-x-3">
+          <div class="flex items-end space-x-2">
             <el-button
               type="primary"
               size="large"
@@ -146,7 +152,6 @@
               <el-icon class="mr-2">
                 <Refresh />
               </el-icon>
-              刷新
             </el-button>
           </div>
         </div>

@@ -67,7 +67,7 @@
 
             <!-- 封面图片 -->
             <el-form-item label="封面图片" prop="cover_url" class="mb-6">
-              <div class="flex items-start space-x-4">
+              <div class="flex flex-col items-center space-y-4">
                 <!-- 图片预览 -->
                 <div
                   v-if="form.cover_url"
