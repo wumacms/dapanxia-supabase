@@ -1,12 +1,15 @@
 import { defineStore } from 'pinia'
 import { ref } from 'vue'
 import { supabase } from '../utils/supabase'
+import { useProfileStore } from './profile'
 
 export const useAvatarStore = defineStore('avatar', () => {
   const avatarUrl = ref<string | null>(null)
   const avatarVersion = ref(0) // 用于缓存破坏
   const uploading = ref(false)
   const error = ref<string | null>(null)
+
+  const profileStore = useProfileStore()
 
   // 获取带版本参数的完整 URL
   // 如果 URL 已包含 v 参数，直接返回；否则添加新版本号
@@ -22,13 +25,13 @@ export const useAvatarStore = defineStore('avatar', () => {
   // 从用户元数据获取头像
   async function fetchAvatar(userId: string) {
     try {
-      const { data, error: fetchError } = await supabase
+      const { data, error } = await supabase
         .from('profiles')
         .select('avatar_url')
         .eq('id', userId)
         .single()
 
-      if (fetchError) throw fetchError
+      if (error) throw error
       avatarUrl.value = data?.avatar_url || null
       // 从 URL 中提取时间戳作为版本号，如果 URL 包含 v 参数
       if (data?.avatar_url) {
@@ -144,6 +147,11 @@ export const useAvatarStore = defineStore('avatar', () => {
       const urlWithVersion = `${data.publicUrl}?v=${timestamp}`
 
       avatarUrl.value = urlWithVersion
+
+      // 同步更新 profile store
+      if (profileStore.profile) {
+        profileStore.profile.avatar_url = urlWithVersion
+      }
 
       // profiles 表存储带时间戳的 URL，确保每次获取最新头像
       const { error: updateError } = await supabase

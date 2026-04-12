@@ -1,20 +1,45 @@
 <script setup lang="ts">
-import { ref, computed } from 'vue'
+import { ref, computed, watch } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import { HomeFilled, Folder, List, UserFilled } from '@element-plus/icons-vue'
 import { useAuthStore } from '../stores/auth'
+import { useProfileStore } from '../stores/profile'
 import AvatarUploader from './AvatarUploader.vue'
 
 const router = useRouter()
 const route = useRoute()
 const authStore = useAuthStore()
+const profileStore = useProfileStore()
 
 // 控制个人中心抽屉
 const drawer = ref(false)
 
 // 计算属性
 const isAuthenticated = computed(() => authStore.isAuthenticated)
+
+// 监听用户登录，加载 profile
+watch(
+  () => authStore.user?.id,
+  async (userId) => {
+    if (userId) {
+      await profileStore.fetchProfile(userId)
+    }
+  },
+  { immediate: true }
+)
+
+// 获取显示名称（优先使用昵称，其次邮箱前缀）
+const displayName = computed(() => {
+  if (profileStore.profile?.nickname) {
+    return profileStore.profile.nickname
+  }
+  const email = authStore.userEmail
+  if (email) {
+    return email.split('@')[0]
+  }
+  return '用户'
+})
 
 // 导航菜单项
 const navItems = [
@@ -131,7 +156,7 @@ const goToChangePassword = () => {
               <div class="flex items-center space-x-3 cursor-pointer p-2 rounded-lg hover:bg-gray-50 transition-colors">
                 <AvatarUploader :size="36" />
                 <div class="hidden sm:block">
-                  <p class="text-sm font-medium text-gray-700">{{ authStore.userEmail }}</p>
+                  <p class="text-sm font-medium text-gray-700">{{ displayName }}</p>
                 </div>
                 <el-icon class="text-gray-400">
                   <UserFilled />
@@ -217,7 +242,7 @@ const goToChangePassword = () => {
             <el-icon class="text-white text-xs"><Check /></el-icon>
           </div>
         </div>
-        <h3 class="mt-4 text-lg font-semibold text-gray-900">{{ authStore.userEmail }}</h3>
+        <h3 class="mt-4 text-lg font-semibold text-gray-900">{{ displayName }}</h3>
         <p class="text-gray-500 text-sm mt-1">普通用户</p>
       </div>
 

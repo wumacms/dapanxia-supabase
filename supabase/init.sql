@@ -63,6 +63,7 @@ CREATE TYPE payment_channel AS ENUM (
 -- Profiles 表（用户扩展信息）
 CREATE TABLE IF NOT EXISTS profiles (
     id UUID REFERENCES auth.users PRIMARY KEY,
+    nickname TEXT NOT NULL DEFAULT '',
     avatar_url TEXT,
     created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
     updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
@@ -377,6 +378,37 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql;
 
+-- 自动创建 profiles 记录的触发器
+-- 使用邮箱前缀作为默认昵称，设置默认头像
+CREATE OR REPLACE FUNCTION handle_new_user()
+RETURNS TRIGGER AS $$
+DECLARE
+  default_nickname TEXT;
+  default_avatar TEXT;
+BEGIN
+  -- 提取邮箱前缀作为默认昵称
+  default_nickname := COALESCE(
+    SPLIT_PART(NEW.email, '@', 1),
+    '用户'
+  );
+  
+  -- 使用 placehold.co 作为默认头像
+  default_avatar := 'https://placehold.co/200x200/6366f1/ffffff?text=' || 
+    UPPER(SUBSTRING(default_nickname FROM 1 FOR 2));
+
+  INSERT INTO profiles (id, nickname, avatar_url, created_at, updated_at)
+  VALUES (NEW.id, default_nickname, default_avatar, NOW(), NOW())
+  ON CONFLICT (id) DO NOTHING;
+  RETURN NEW;
+END;
+$$ LANGUAGE plpgsql SECURITY DEFINER;
+
+DROP TRIGGER IF EXISTS on_auth_user_created ON auth.users;
+CREATE TRIGGER on_auth_user_created
+  AFTER INSERT ON auth.users
+  FOR EACH ROW
+  EXECUTE FUNCTION handle_new_user();
+
 -- ============================================
 -- 第六部分: Storage 存储桶配置
 -- ============================================
@@ -497,3 +529,21 @@ WHERE r.status = 'published' AND r.is_visible = true;
 -- 1. Storage → 创建 avatars bucket (Public)
 -- 2. Storage → 创建 resource-covers bucket (Public)
 -- 3. Edge Functions → 部署 wxpay-callback (支付回调)
+
+-- ============================================
+-- 迁移脚本：已有用户补充 profiles 记录
+-- ============================================
+-- 仅在首次配置或修复时执行一次，用于为已有用户创建缺失的 profiles 记录
+
+INSERT INTO profiles (id, nickname, avatar_url, created_at, updated_at)
+SELECT
+  id,
+  COALESCE(SPLIT_PART(email, '@', 1), '用户'),
+  'https://placehold.co/200x200/6366f1/ffffff?text=' ||
+    UPPER(SUBSTRING(COALESCE(SPLIT_PART(email, '@', 1), '用户') FROM 1 FOR 2)),
+  NOW(),
+  NOW()
+FROM auth.users
+WHERE NOT EXISTS (
+  SELECT 1 FROM profiles WHERE profiles.id = auth.users.id
+);
