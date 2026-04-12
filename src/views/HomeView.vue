@@ -2,7 +2,7 @@
 import { ref, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { ElMessage } from 'element-plus'
-import { Folder, ShoppingCart } from '@element-plus/icons-vue'
+import { Folder, ShoppingCart, Loading } from '@element-plus/icons-vue'
 import { useAuthStore } from '../stores/auth'
 import { ResourceService } from '../services/resourceService'
 import type { Resource } from '../types/resources'
@@ -55,6 +55,14 @@ onMounted(() => {
 <template>
   <div class="bg-gray-50 min-h-[calc(100vh-64px)]">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <!-- 加载状态 -->
+      <div v-if="loading" class="flex flex-col items-center justify-center py-12">
+        <el-icon class="text-4xl text-blue-500 is-loading">
+          <Loading />
+        </el-icon>
+        <p class="mt-4 text-gray-500">加载资源中...</p>
+      </div>
+
       <!-- 热门资源 -->
       <div v-if="hotResources.length > 0" class="mb-8">
         <div class="flex justify-between items-center mb-4">
