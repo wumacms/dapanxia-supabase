@@ -90,7 +90,13 @@ const handleRegister = async (formEl: FormInstance | undefined) => {
         router.push('/login')
       }
     } catch (error: any) {
-      ElMessage.error(getErrorMessage(error))
+      // 处理邮件发送频率限制错误
+      if (error.code === 'over_email_send_rate_limit') {
+        ElMessage.warning('该邮箱已注册，请查收之前的验证邮件，或稍后重试。')
+        router.push('/login')
+      } else {
+        ElMessage.error(getErrorMessage(error))
+      }
     } finally {
       loading.value = false
     }
