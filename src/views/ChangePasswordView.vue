@@ -36,25 +36,23 @@ const passwordStrength = computed(() => {
   const pwd = form.newPassword
   if (!pwd) return { level: 0, text: '', color: '' }
 
-  const hasLength = pwd.length >= 8
-  const hasUpper = /[A-Z]/.test(pwd)
-  const hasLower = /[a-z]/.test(pwd)
-  const hasDigit = /[0-9]/.test(pwd)
-  const hasSpecial = /[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]/.test(pwd)
+  let count = 0
+  if (pwd.length >= 8) count++
+  if (/[A-Z]/.test(pwd)) count++
+  if (/[a-z]/.test(pwd)) count++
+  if (/[0-9]/.test(pwd)) count++
+  if (/[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]/.test(pwd)) count++
 
-  // 必须同时满足所有条件才算强密码
-  const allRequirements = hasLength && hasUpper && hasLower && hasDigit && hasSpecial
-
-  if (!allRequirements) {
-    // 缺少任一条件即为弱
-    return { level: 1, text: '弱', color: 'bg-red-500' }
-  }
-
-  // 满足所有条件，根据长度进一步区分
-  if (pwd.length >= 12) {
+  // 满足所有5个条件为强
+  if (count === 5) {
     return { level: 3, text: '强', color: 'bg-green-500' }
   }
-  return { level: 2, text: '中等', color: 'bg-yellow-500' }
+  // 满足4个条件为中等
+  if (count === 4) {
+    return { level: 2, text: '中等', color: 'bg-orange-500' }
+  }
+  // 其他为弱
+  return { level: 1, text: '弱', color: 'bg-red-500' }
 })
 
 const validateConfirmPassword = (_rule: any, value: string, callback: any) => {
@@ -159,7 +157,7 @@ const goBack = () => {
             </div>
             <p class="text-xs" :class="{
               'text-red-500': passwordStrength.level === 1,
-              'text-yellow-500': passwordStrength.level === 2,
+              'text-orange-500': passwordStrength.level === 2,
               'text-green-500': passwordStrength.level === 3,
             }">
               密码强度：{{ passwordStrength.text }}（需包含：大写字母、小写字母、数字、特殊字符）
