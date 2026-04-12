@@ -35,18 +35,26 @@ const validatePassword = (_rule: any, value: string, callback: any) => {
 const passwordStrength = computed(() => {
   const pwd = form.password
   if (!pwd) return { level: 0, text: '', color: '' }
-  
-  let score = 0
-  if (pwd.length >= 8) score++
-  if (pwd.length >= 12) score++
-  if (/[A-Z]/.test(pwd)) score++
-  if (/[a-z]/.test(pwd)) score++
-  if (/[0-9]/.test(pwd)) score++
-  if (/[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]/.test(pwd)) score++
-  
-  if (score <= 2) return { level: 1, text: '弱', color: 'bg-red-500' }
-  if (score <= 4) return { level: 2, text: '中等', color: 'bg-yellow-500' }
-  return { level: 3, text: '强', color: 'bg-green-500' }
+
+  const hasLength = pwd.length >= 8
+  const hasUpper = /[A-Z]/.test(pwd)
+  const hasLower = /[a-z]/.test(pwd)
+  const hasDigit = /[0-9]/.test(pwd)
+  const hasSpecial = /[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]/.test(pwd)
+
+  // 必须同时满足所有条件才算强密码
+  const allRequirements = hasLength && hasUpper && hasLower && hasDigit && hasSpecial
+
+  if (!allRequirements) {
+    // 缺少任一条件即为弱
+    return { level: 1, text: '弱', color: 'bg-red-500' }
+  }
+
+  // 满足所有条件，根据长度进一步区分
+  if (pwd.length >= 12) {
+    return { level: 3, text: '强', color: 'bg-green-500' }
+  }
+  return { level: 2, text: '中等', color: 'bg-yellow-500' }
 })
 
 const validateConfirmPassword = (_rule: any, value: string, callback: any) => {
