@@ -4,7 +4,7 @@ import tailwindcss from '@tailwindcss/vite'
 
 // https://vite.dev/config/
 export default defineConfig({
-  base: '/dapanxia-supabase/',
+  base: import.meta.env.VITE_APP_BASE_PATH || '/dapanxia-supabase/',
   plugins: [vue(), tailwindcss()],
   server: {
     proxy: {
