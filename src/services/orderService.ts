@@ -211,6 +211,14 @@ export class OrderService {
         if (purchase) {
           // 已支付订单：使用快照数据
           order.resource_url = purchase.resource_url
+          // 设置 resource 以便模板中 order.resource?.cover_url 能正常工作
+          order.resource = {
+            id: order.resource_id,
+            title: purchase.resource_title,
+            cover_url: purchase.cover_url,
+            category: purchase.category,
+            platform: purchase.platform
+          }
           ;(order as any).purchase_snapshot = purchase
         } else if (order.payment_status === 'pending') {
           // 待支付订单：查询资源基本信息

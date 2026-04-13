@@ -68,6 +68,12 @@ const routes: RouteRecordRaw[] = [
     component: () => import('../views/orders/OrderDetailView.vue'),
     meta: { requiresAuth: true },
   },
+  // 404 页面 - 必须放在最后
+  {
+    path: '/:pathMatch(.*)*',
+    name: 'NotFound',
+    component: () => import('../views/NotFoundView.vue'),
+  },
 ]
 
 const router = createRouter({
