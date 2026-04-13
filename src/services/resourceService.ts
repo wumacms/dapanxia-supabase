@@ -103,38 +103,44 @@ export class ResourceService {
       throw error
     }
 
-    // 获取每个资源的标签和头像
-    const resourcesWithTags = await Promise.all(
-      (data || []).map(async (resource) => {
-        const tags = await this.getResourceTags(resource.id)
-        
-        // 如果使用 resources 表，需要获取用户头像 - 优雅处理 RLS 限制
-        let author_avatar = resource.author_avatar || null
-        if (tableName === 'resources') {
-          try {
-            const { data: profile, error: profileError } = await supabase
-              .from('profiles')
-              .select('avatar_url')
-              .eq('id', resource.user_id)
-              .maybeSingle()
-            
-            if (profileError) {
-              // 可能是 RLS 策略限制，静默处理
-            } else if (profile) {
-              author_avatar = profile.avatar_url
-            }
-          } catch (profileError) {
-            // 继续处理，头像可为空
-          }
+    const resources = data || []
+
+    // 批量获取所有标签（修复 N+1 查询）
+    let tagsMap: Record<string, string[]> = {}
+    if (resources.length > 0) {
+      const resourceIds = resources.map(r => r.id)
+      const { data: allTags } = await supabase
+        .from('resource_tags')
+        .select('resource_id, tag_name')
+        .in('resource_id', resourceIds)
+
+      allTags?.forEach(tag => {
+        if (!tagsMap[tag.resource_id]) {
+          tagsMap[tag.resource_id] = []
         }
-        
-        return {
-          ...resource,
-          tags: tags.map(tag => tag.tag_name),
-          author_avatar: author_avatar
-        }
+        tagsMap[tag.resource_id].push(tag.tag_name)
       })
-    )
+    }
+
+    // 批量获取用户头像（修复 N+1 查询）
+    let avatarsMap: Record<string, string | null> = {}
+    if (resources.length > 0 && tableName === 'resources') {
+      const userIds = [...new Set(resources.map(r => r.user_id))]
+      const { data: profiles } = await supabase
+        .from('profiles')
+        .select('id, avatar_url')
+        .in('id', userIds)
+
+      profiles?.forEach(profile => {
+        avatarsMap[profile.id] = profile.avatar_url
+      })
+    }
+
+    const resourcesWithTags = resources.map(resource => ({
+      ...resource,
+      tags: tagsMap[resource.id] || [],
+      author_avatar: tableName === 'resources' ? avatarsMap[resource.user_id] || resource.author_avatar : resource.author_avatar
+    }))
 
     const total = count || 0
     const total_pages = Math.ceil(total / limit)
@@ -564,53 +570,40 @@ export class ResourceService {
       }
     }
 
-    // 获取相关的资源和订单信息
-    const enrichedPurchases = await Promise.all(
-      purchases.map(async (purchase) => {
-        // 获取资源信息
-        const { data: resource } = await supabase
-          .from('resources')
-          .select('*')
-          .eq('id', purchase.resource_id)
-          .single()
+    // 批量获取相关资源（修复 N+1 查询）
+    const resourceIds = purchases.map(p => p.resource_id)
+    const { data: resources } = await supabase
+      .from('resources')
+      .select('*')
+      .in('id', resourceIds)
 
-        // 获取资源作者头像 - 优雅处理 RLS 限制
-        let author_avatar = null
-        if (resource) {
-          try {
-            const { data: profile, error: profileError } = await supabase
-              .from('profiles')
-              .select('avatar_url')
-              .eq('id', resource.user_id)
-              .maybeSingle()
-            
-            if (profileError) {
-              // 静默处理
-            } else if (profile) {
-              author_avatar = profile.avatar_url
-            }
-          } catch (profileError) {
-            // 静默处理
-          }
-        }
+    // 批量获取订单信息（修复 N+1 查询）
+    const orderIds = purchases.map(p => p.order_id)
+    const { data: orders } = await supabase
+      .from('orders')
+      .select('*')
+      .in('id', orderIds)
 
-        // 获取订单信息
-        const { data: order } = await supabase
-          .from('orders')
-          .select('*')
-          .eq('id', purchase.order_id)
-          .single()
+    // 批量获取用户头像（修复 N+1 查询）
+    const userIds = [...new Set(resources?.map(r => r.user_id) || [])]
+    const { data: profiles } = await supabase
+      .from('profiles')
+      .select('id, avatar_url')
+      .in('id', userIds)
 
-        return {
-          ...purchase,
-          resource: resource ? {
-            ...resource,
-            author_avatar: author_avatar
-          } : undefined,
-          order: order || undefined
-        } as UserPurchase
-      })
-    )
+    // 构建映射表
+    const resourcesMap = new Map(resources?.map(r => [r.id, r]) || [])
+    const ordersMap = new Map(orders?.map(o => [o.id, o]) || [])
+    const avatarsMap = new Map(profiles?.map(p => [p.id, p.avatar_url]) || [])
+
+    // 组装数据
+    const enrichedPurchases = purchases.map(purchase => ({
+      ...purchase,
+      resource: resourcesMap.get(purchase.resource_id) 
+        ? { ...resourcesMap.get(purchase.resource_id)!, author_avatar: avatarsMap.get(resourcesMap.get(purchase.resource_id)!.user_id) }
+        : undefined,
+      order: ordersMap.get(purchase.order_id)
+    })) as UserPurchase[]
 
     const total = count || 0
     const total_pages = Math.ceil(total / limit)

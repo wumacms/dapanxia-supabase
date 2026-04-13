@@ -231,6 +231,7 @@
                         v-if="order.resource?.cover_url"
                         :src="order.resource.cover_url"
                         :alt="order.resource.title"
+                        loading="lazy"
                         class="h-12 w-12 rounded object-cover"
                       />
                       <div

@@ -358,7 +358,7 @@ CREATE TRIGGER update_orders_updated_at
   FOR EACH ROW
   EXECUTE FUNCTION update_updated_at_column();
 
--- 增加浏览量的函数
+-- 增加浏览量的函数（SECURITY DEFINER 绕过 RLS，允许匿名用户增加浏览量）
 CREATE OR REPLACE FUNCTION increment_view_count(resource_id UUID)
 RETURNS VOID AS $$
 BEGIN
@@ -366,9 +366,9 @@ BEGIN
   SET view_count = view_count + 1
   WHERE id = resource_id;
 END;
-$$ LANGUAGE plpgsql;
+$$ LANGUAGE plpgsql SECURITY DEFINER;
 
--- 增加购买量的函数
+-- 增加购买量的函数（SECURITY DEFINER 绕过 RLS）
 CREATE OR REPLACE FUNCTION increment_purchase_count(resource_id UUID)
 RETURNS VOID AS $$
 BEGIN
@@ -376,7 +376,7 @@ BEGIN
   SET purchase_count = purchase_count + 1
   WHERE id = resource_id;
 END;
-$$ LANGUAGE plpgsql;
+$$ LANGUAGE plpgsql SECURITY DEFINER;
 
 -- 自动创建 profiles 记录的触发器
 -- 使用邮箱前缀作为默认昵称，设置默认头像

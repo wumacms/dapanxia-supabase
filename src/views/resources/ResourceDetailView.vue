@@ -47,6 +47,7 @@
                   v-if="resource.cover_url"
                   :src="resource.cover_url"
                   :alt="resource.title"
+                  loading="lazy"
                   class="w-full h-64 object-cover"
                 />
                 <div

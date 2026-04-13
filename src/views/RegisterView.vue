@@ -5,6 +5,7 @@ import { ElMessage, type FormInstance, type FormRules } from 'element-plus'
 import { Lock, Message } from '@element-plus/icons-vue'
 import { useAuthStore } from '../stores/auth'
 import { getErrorMessage } from '../utils/i18n'
+import { validatePassword, validateConfirmPassword, calculatePasswordStrength } from '../utils/validation'
 
 const router = useRouter()
 const authStore = useAuthStore()
@@ -18,50 +19,10 @@ const form = reactive({
   confirmPassword: '',
 })
 
-// 密码复杂度验证规则
-const validatePassword = (_rule: any, value: string, callback: any) => {
-  const regex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]).{8,}$/
-
-  if (!value) {
-    callback(new Error('请输入密码'))
-  } else if (!regex.test(value)) {
-    callback(new Error('密码需≥8位，包含大小写字母、数字和特殊字符'))
-  } else {
-    callback()
-  }
-}
-
 // 密码强度计算
-const passwordStrength = computed(() => {
-  const pwd = form.password
-  if (!pwd) return { level: 0, text: '', color: '' }
+const passwordStrength = computed(() => calculatePasswordStrength(form.password))
 
-  let count = 0
-  if (pwd.length >= 8) count++
-  if (/[A-Z]/.test(pwd)) count++
-  if (/[a-z]/.test(pwd)) count++
-  if (/[0-9]/.test(pwd)) count++
-  if (/[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]/.test(pwd)) count++
-
-  // 满足所有5个条件为强
-  if (count === 5) {
-    return { level: 3, text: '强', color: 'bg-green-500' }
-  }
-  // 满足4个条件为中等
-  if (count === 4) {
-    return { level: 2, text: '中等', color: 'bg-orange-500' }
-  }
-  // 其他为弱
-  return { level: 1, text: '弱', color: 'bg-red-500' }
-})
-
-const validateConfirmPassword = (_rule: any, value: string, callback: any) => {
-  if (value !== form.password) {
-    callback(new Error('两次输入的密码不一致'))
-  } else {
-    callback()
-  }
-}
+const validateConfirmPwd = validateConfirmPassword(() => form.password)
 
 const rules: FormRules = {
   email: [
@@ -74,7 +35,7 @@ const rules: FormRules = {
   ],
   confirmPassword: [
     { required: true, message: '请确认密码', trigger: 'blur' },
-    { validator: validateConfirmPassword, trigger: 'blur' },
+    { validator: validateConfirmPwd, trigger: 'blur' },
   ],
 }
 

@@ -6,6 +6,7 @@
         v-if="resource.cover_url"
         :src="resource.cover_url"
         :alt="resource.title"
+        loading="lazy"
         class="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
       />
       <div
