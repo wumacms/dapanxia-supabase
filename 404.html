@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>404 · GitHub 风格 · 页面未找到</title>
+    <style>
+        /* GitHub 风格重置 & 基础变量 */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Noto Sans", Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji";
+            background-color: #ffffff;
+            color: #1f2328;
+            line-height: 1.5;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            padding: 2rem;
+        }
+
+        /* 主容器 – 极简居中，类 GitHub 错误页宽度 */
+        .error-container {
+            max-width: 544px;
+            width: 100%;
+            margin: 0 auto;
+            text-align: center;
+        }
+
+        /* GitHub 风格的超大数字 404 */
+        .error-code {
+            font-size: 8rem;
+            font-weight: 600;
+            line-height: 1;
+            color: #1f2328;
+            letter-spacing: -0.02em;
+            margin-bottom: 0.5rem;
+        }
+
+        /* 标题 – 类似 GitHub 错误提示 */
+        .title {
+            font-size: 1.5rem;
+            font-weight: 600;
+            margin-bottom: 0.75rem;
+            color: #1f2328;
+        }
+
+        /* 描述文字 – 轻微柔和 */
+        .description {
+            font-size: 1rem;
+            color: #3d444d;
+            margin-bottom: 2rem;
+            max-width: 420px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        /* 按钮组 - 同行显示 (flex 行内布局) */
+        .action-group {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 0.75rem;
+            margin-bottom: 1.5rem;
+        }
+
+        /* GitHub 风格按钮基础样式 */
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            background-color: #f6f8fa;
+            color: #1f2328;
+            border: 1px solid #d1d9e8;
+            border-radius: 0.5rem;
+            padding: 0.5rem 1rem;
+            font-size: 0.9rem;
+            font-weight: 500;
+            text-decoration: none;
+            transition: 0.1s ease-in-out;
+            cursor: pointer;
+            font-family: inherit;
+        }
+
+        .btn:hover {
+            background-color: #f3f4f6;
+            border-color: #bccee4;
+            transform: scale(0.98);
+        }
+
+        .btn:active {
+            background-color: #e9ecef;
+        }
+
+        /* 次要按钮（返回上一页）样式完全一致，保持同行视觉平衡 */
+        .btn-secondary {
+            background-color: #f6f8fa;
+            color: #1f2328;
+            border: 1px solid #d1d9e8;
+        }
+
+        .btn-secondary:hover {
+            background-color: #f3f4f6;
+            border-color: #bccee4;
+        }
+
+        /* 装饰细线，氛围低调 */
+        .hr-line {
+            margin: 1.5rem auto 0;
+            width: 60px;
+            height: 1px;
+            background: #eaeef2;
+            border: 0;
+        }
+
+        /* 底部辅助文字 */
+        .footer-meta {
+            margin-top: 1rem;
+            font-size: 0.7rem;
+            color: #7d8590;
+        }
+
+        /* 响应式：小屏幕下按钮仍保持一行，如果宽度不够则换行 (依然友好) */
+        @media (max-width: 420px) {
+            .action-group {
+                gap: 0.6rem;
+            }
+            .btn {
+                padding: 0.45rem 0.85rem;
+                font-size: 0.85rem;
+            }
+            .error-code {
+                font-size: 6rem;
+            }
+            .title {
+                font-size: 1.25rem;
+            }
+            .description {
+                font-size: 0.9rem;
+                padding: 0 0.5rem;
+            }
+        }
+
+        /* 保持焦点可见性符合无障碍 */
+        .btn:focus-visible {
+            outline: 2px solid #0969da;
+            outline-offset: 2px;
+            border-radius: 4px;
+        }
+    </style>
+</head>
+<body>
+    <div class="error-container">
+        <!-- GitHub 风格纯数字，不加花哨装饰 -->
+        <div class="error-code" aria-hidden="true">404</div>
+        
+        <!-- 主标题：简洁直接 -->
+        <h1 class="title">页面未找到</h1>
+        
+        <!-- 描述：标准 GitHub 404 语气，友好但冷静 -->
+        <p class="description">
+            抱歉，我们无法找到您尝试访问的页面。<br>
+            可能是链接无效，或页面已被移除。
+        </p>
+        
+        <!-- 按钮组：返回首页 + 返回上一页 同行显示 -->
+        <div class="action-group">
+            <a href="/" class="btn">
+                <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+                    <path d="M12 6L8 2L4 6" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+                    <path d="M8 2V10" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/>
+                    <path d="M3 12L13 12" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/>
+                </svg>
+                返回首页
+            </a>
+            <button class="btn btn-secondary" id="backButton">
+                <svg width="14" height="14" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+                    <path d="M10 12L6 8L10 4" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+                </svg>
+                返回上一页
+            </button>
+        </div>
+    </div>
+
+    <script>
+        // 优雅处理返回上一页：如果有历史记录则后退，否则跳转首页
+        (function() {
+            const backBtn = document.getElementById('backButton');
+            if (backBtn) {
+                backBtn.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    if (window.history.length > 1) {
+                        window.history.back();
+                    } else {
+                        // 没有上一页记录时，跳转首页保证体验
+                        window.location.href = '/';
+                    }
+                });
+            }
+        })();
+    </script>
+</body>
+</html>
