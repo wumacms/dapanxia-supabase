@@ -67,7 +67,7 @@
 
             <!-- 封面图片 -->
             <el-form-item label="封面图片" prop="cover_url" class="mb-6">
-              <div class="flex flex-col items-center space-y-4">
+              <div class="flex flex-col items-start space-y-4">
                 <!-- 图片预览 -->
                 <div
                   v-if="form.cover_url"
@@ -78,7 +78,7 @@
                     alt="封面预览"
                     class="w-full h-full object-cover"
                   />
-                  <div class="absolute top-2 right-2">
+                  <div class="absolute top-0 right-2">
                     <el-button
                       type="danger"
                       size="small"
@@ -123,7 +123,7 @@
                     @change="handleFileUpload"
                   />
                   <p class="text-sm text-gray-500">
-                    支持 JPG、PNG 格式，大小不超过 5MB
+                    支持 JPG、PNG 格式，大小不超过 500KB
                   </p>
                 </div>
               </div>
