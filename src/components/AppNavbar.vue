@@ -54,17 +54,17 @@ const isActive = (path: string) => {
   if (path === '/') {
     return route.path === '/'
   }
-  
+
   // 特殊处理：发布新资源页面 (/resources/create) 应该高亮"我的资源"菜单，而不是"资源库"
   if (route.path === '/resources/create') {
     return path === '/my-resources'
   }
-  
+
   // 特殊处理：编辑资源页面 (/resources/:id/edit) 应该高亮"我的资源"菜单，而不是"资源库"
   if (route.path.startsWith('/resources/') && route.path.endsWith('/edit')) {
     return path === '/my-resources'
   }
-  
+
   // 其他页面正常匹配
   return route.path.startsWith(path)
 }
@@ -117,22 +117,18 @@ const goToChangePassword = () => {
         <div class="flex items-center">
           <!-- Logo -->
           <router-link to="/" class="flex items-center flex-shrink-0">
-            <img src="/logo_nav.png" alt="大盘侠" class="h-12 w-auto" />
+            <img src="/logo.png" alt="大盘侠" class="h-12 w-auto" />
           </router-link>
 
           <!-- 导航链接 - 仅登录后显示 -->
           <div v-if="isAuthenticated" class="hidden md:flex items-center ml-8 space-x-1">
-            <router-link
-              v-for="item in navItems"
-              :key="item.name"
-              :to="item.path"
+            <router-link v-for="item in navItems" :key="item.name" :to="item.path"
               class="nav-link px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200 flex items-center"
               :class="[
                 isActive(item.path)
                   ? 'text-blue-600 bg-blue-50'
                   : 'text-gray-600 hover:text-blue-600 hover:bg-gray-50'
-              ]"
-            >
+              ]">
               <el-icon class="mr-1.5">
                 <component :is="item.icon" />
               </el-icon>
@@ -158,23 +154,33 @@ const goToChangePassword = () => {
               <template #dropdown>
                 <el-dropdown-menu class="w-48">
                   <el-dropdown-item @click="goToProfile">
-                    <el-icon class="mr-2"><UserFilled /></el-icon>
+                    <el-icon class="mr-2">
+                      <UserFilled />
+                    </el-icon>
                     个人中心
                   </el-dropdown-item>
                   <el-dropdown-item @click="goToMyResources">
-                    <el-icon class="mr-2"><Folder /></el-icon>
+                    <el-icon class="mr-2">
+                      <Folder />
+                    </el-icon>
                     我的资源
                   </el-dropdown-item>
                   <el-dropdown-item @click="goToOrders">
-                    <el-icon class="mr-2"><List /></el-icon>
+                    <el-icon class="mr-2">
+                      <List />
+                    </el-icon>
                     我的订单
                   </el-dropdown-item>
                   <el-dropdown-item divided @click="goToChangePassword">
-                    <el-icon class="mr-2"><UserFilled /></el-icon>
+                    <el-icon class="mr-2">
+                      <UserFilled />
+                    </el-icon>
                     修改密码
                   </el-dropdown-item>
                   <el-dropdown-item divided @click="handleLogout" class="text-red-500">
-                    <el-icon class="mr-2"><UserFilled /></el-icon>
+                    <el-icon class="mr-2">
+                      <UserFilled />
+                    </el-icon>
                     退出登录
                   </el-dropdown-item>
                 </el-dropdown-menu>
@@ -198,17 +204,12 @@ const goToChangePassword = () => {
     <!-- 移动端导航栏 - 底部固定 -->
     <div v-if="isAuthenticated" class="md:hidden fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 z-50">
       <div class="flex justify-around py-2">
-        <router-link
-          v-for="item in navItems"
-          :key="item.name"
-          :to="item.path"
-          class="flex flex-col items-center py-2 px-4 rounded-lg"
-          :class="[
+        <router-link v-for="item in navItems" :key="item.name" :to="item.path"
+          class="flex flex-col items-center py-2 px-4 rounded-lg" :class="[
             isActive(item.path)
               ? 'text-blue-600'
               : 'text-gray-500'
-          ]"
-        >
+          ]">
           <el-icon class="text-xl mb-1">
             <component :is="item.icon" />
           </el-icon>
@@ -219,20 +220,17 @@ const goToChangePassword = () => {
   </nav>
 
   <!-- 个人中心抽屉 -->
-  <el-drawer
-    v-model="drawer"
-    title="个人中心"
-    size="380"
-    :with-header="true"
-    class="profile-drawer"
-  >
+  <el-drawer v-model="drawer" title="个人中心" size="380" :with-header="true" class="profile-drawer">
     <div class="p-6">
       <!-- 用户信息卡片 -->
       <div class="text-center mb-8">
         <div class="relative inline-block">
           <AvatarUploader :size="80" :editable="true" />
-          <div class="absolute bottom-0 right-0 w-6 h-6 bg-green-500 rounded-full border-2 border-white flex items-center justify-center">
-            <el-icon class="text-white text-xs"><Check /></el-icon>
+          <div
+            class="absolute bottom-0 right-0 w-6 h-6 bg-green-500 rounded-full border-2 border-white flex items-center justify-center">
+            <el-icon class="text-white text-xs">
+              <Check />
+            </el-icon>
           </div>
         </div>
         <h3 class="mt-4 text-lg font-semibold text-gray-900">{{ displayName }}</h3>
@@ -242,11 +240,15 @@ const goToChangePassword = () => {
       <!-- 快捷操作 -->
       <div class="grid grid-cols-2 gap-3 mb-8">
         <el-button @click="goToMyResources" class="h-16 flex flex-col items-center justify-center">
-          <el-icon class="text-xl mb-1"><Folder /></el-icon>
+          <el-icon class="text-xl mb-1">
+            <Folder />
+          </el-icon>
           <span class="text-sm">我的资源</span>
         </el-button>
         <el-button @click="goToOrders" class="h-16 flex flex-col items-center justify-center">
-          <el-icon class="text-xl mb-1"><List /></el-icon>
+          <el-icon class="text-xl mb-1">
+            <List />
+          </el-icon>
           <span class="text-sm">我的订单</span>
         </el-button>
       </div>
@@ -265,10 +267,7 @@ const goToChangePassword = () => {
           </div>
           <div class="flex justify-between items-center">
             <span class="text-gray-500">邮箱验证</span>
-            <el-tag
-              :type="authStore.user?.email_confirmed_at ? 'success' : 'warning'"
-              size="small"
-            >
+            <el-tag :type="authStore.user?.email_confirmed_at ? 'success' : 'warning'" size="small">
               {{ authStore.user?.email_confirmed_at ? '已验证' : '未验证' }}
             </el-tag>
           </div>
