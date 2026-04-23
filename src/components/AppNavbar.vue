@@ -122,7 +122,7 @@ const goToChangePassword = () => {
         <div class="flex items-center">
           <!-- Logo -->
           <router-link to="/" class="flex items-center flex-shrink-0">
-            <img src="/logo.png" alt="盘大侠" class="h-12 w-auto" />
+            <img src="/logo.png" alt="盘大侠" class="h-10 w-auto" />
           </router-link>
 
           <!-- 导航链接 -->
