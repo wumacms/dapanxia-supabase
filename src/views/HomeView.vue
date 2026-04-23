@@ -4,6 +4,7 @@ import { useRouter } from 'vue-router'
 import { ElMessage } from 'element-plus'
 import { Folder, ShoppingCart, Loading } from '@element-plus/icons-vue'
 import { ResourceService } from '../services/resourceService'
+import EmptyState from '../components/EmptyState.vue'
 import type { Resource } from '../types/resources'
 
 const router = useRouter()
@@ -150,9 +151,21 @@ onMounted(() => {
                 </div>
               </div>
             </div>
-          </div>
         </div>
       </div>
+    </div>
+
+      <!-- 全局空状态 -->
+      <EmptyState
+        v-if="!loading && hotResources.length === 0 && newResources.length === 0"
+        type="data"
+        title="暂无推荐资源"
+        description="目前还没有热门或最新资源，快去发布第一个吧"
+        show-action
+        action-text="发布资源"
+        @action="router.push('/resources/create')"
+        class="bg-white rounded-xl shadow-card"
+      />
     </div>
   </div>
 </template>

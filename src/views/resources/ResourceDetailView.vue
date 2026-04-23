@@ -12,16 +12,15 @@
 
     <!-- 错误状态 -->
     <div v-else-if="error" class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-      <div class="flex flex-col items-center justify-center py-12 bg-white rounded-xl shadow-card">
-        <el-icon class="empty-icon text-red-500">
-          <CircleCloseFilled />
-        </el-icon>
-        <h3 class="text-xl font-semibold text-gray-900 mb-2">加载失败</h3>
-        <p class="text-gray-500 mb-6">{{ error }}</p>
-        <el-button type="primary" @click="retryLoad" size="large">
-          重试
-        </el-button>
-      </div>
+      <EmptyState
+        type="error"
+        title="加载失败"
+        :description="error"
+        show-action
+        action-text="重试"
+        @action="retryLoad"
+        class="bg-white rounded-xl shadow-card"
+      />
     </div>
 
     <!-- 资源详情 -->
@@ -319,7 +318,6 @@ const renderMarkdown = (content: string): string => {
 }
 import {
   Loading,
-  CircleCloseFilled,
   FolderOpened,
   View,
   ShoppingCart,
@@ -329,6 +327,7 @@ import {
   Share,
   Link
 } from '@element-plus/icons-vue'
+import EmptyState from '../../components/EmptyState.vue'
 import ResourceCard from '../../components/resources/ResourceCard.vue'
 import { useAuthStore } from '../../stores/auth'
 import { ResourceService } from '../../services/resourceService'

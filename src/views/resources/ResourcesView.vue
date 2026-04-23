@@ -122,16 +122,16 @@
       </div>
 
       <!-- 空状态 -->
-      <div v-else-if="resources.length === 0" class="flex flex-col items-center justify-center py-12 bg-white rounded-xl shadow-card">
-        <el-icon class="text-6xl text-gray-300 mb-4">
-          <FolderOpened />
-        </el-icon>
-        <h3 class="text-xl font-semibold text-gray-900 mb-2">暂无资源</h3>
-        <p class="text-gray-500 mb-6">暂时没有找到符合条件的资源</p>
-        <el-button type="primary" @click="resetFilters" size="large">
-          重置筛选条件
-        </el-button>
-      </div>
+      <EmptyState
+        v-else-if="resources.length === 0"
+        :type="searchQuery ? 'search' : 'data'"
+        :title="searchQuery ? '未找到相关资源' : '暂无资源'"
+        :description="searchQuery ? '请尝试调整搜索关键词或重置筛选条件' : '暂时没有找到符合条件的资源'"
+        show-action
+        action-text="重置筛选条件"
+        @action="resetFilters"
+        class="bg-white rounded-xl shadow-card"
+      />
 
       <!-- 资源网格 -->
       <div v-else>
@@ -167,8 +167,9 @@
 import { ref, computed, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { ElMessage } from 'element-plus'
-import { Search, Loading, FolderOpened } from '@element-plus/icons-vue'
+import { Search, Loading } from '@element-plus/icons-vue'
 import ResourceCard from '../../components/resources/ResourceCard.vue'
+import EmptyState from '../../components/EmptyState.vue'
 import { ResourceService } from '../../services/resourceService'
 import { Resource, ResourceQueryParams, ResourceCategory, CloudPlatform } from '../../types/resources'
 import { ResourceCategoryLabels } from '../../types/resources'

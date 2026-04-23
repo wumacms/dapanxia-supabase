@@ -10,16 +10,15 @@
     </div>
 
     <div v-else-if="error" class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-      <div class="flex flex-col items-center justify-center py-12 bg-white rounded-xl shadow-card">
-        <el-icon class="text-6xl text-red-500 mb-4">
-          <CircleCloseFilled />
-        </el-icon>
-        <h3 class="text-xl font-semibold text-gray-900 mb-2">加载失败</h3>
-        <p class="text-gray-500 mb-6">{{ error }}</p>
-        <el-button type="primary" @click="$router.back()" size="large">
-          返回
-        </el-button>
-      </div>
+      <EmptyState
+        type="error"
+        title="加载失败"
+        :description="error"
+        show-action
+        action-text="返回上一页"
+        @action="$router.back()"
+        class="bg-white rounded-xl shadow-card"
+      />
     </div>
 
     <div v-else-if="order" class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
@@ -405,7 +404,6 @@ import { useRoute, useRouter } from 'vue-router'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import {
   Loading,
-  CircleCloseFilled,
   FolderOpened,
   SuccessFilled,
   InfoFilled,
@@ -417,6 +415,7 @@ import {
   Check,
   Close
 } from '@element-plus/icons-vue'
+import EmptyState from '../../components/EmptyState.vue'
 import { useAuthStore } from '../../stores/auth'
 import { OrderService } from '../../services/orderService'
 import { lantuzPayService } from '../../services/lantuzPayService'

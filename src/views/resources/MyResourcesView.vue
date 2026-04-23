@@ -166,13 +166,16 @@
       </div>
 
       <!-- 空状态 -->
-      <div v-else-if="resources.length === 0" class="flex flex-col items-center justify-center py-12 bg-white rounded-xl shadow-card">
-        <el-icon class="text-6xl text-gray-300 mb-4">
-          <FolderOpened />
-        </el-icon>
-        <h3 class="text-xl font-semibold text-gray-900 mb-2">暂无资源</h3>
-        <p class="text-gray-500">您还没有发布任何资源</p>
-      </div>
+      <EmptyState
+        v-else-if="resources.length === 0"
+        type="data"
+        title="暂无资源"
+        description="您还没有发布任何资源，现在就去发布一个吧"
+        show-action
+        action-text="发布新资源"
+        @action="navigateToCreate"
+        class="bg-white rounded-xl shadow-card"
+      />
 
       <!-- 资源表格 -->
       <div v-else class="bg-white rounded-xl shadow-card overflow-hidden">
@@ -363,7 +366,6 @@ import {
   Plus,
   Refresh,
   Loading,
-  FolderOpened,
   View,
   ShoppingCart
 } from '@element-plus/icons-vue'
@@ -373,6 +375,7 @@ import { Resource, ResourceQueryParams, UserResourceStats, ResourceStatus } from
 import { ResourceCategoryLabels } from '../../types/resources'
 import { CloudPlatformLabels } from '../../types/resources'
 import { ResourceStatusLabels } from '../../types/resources'
+import EmptyState from '../../components/EmptyState.vue'
 
 const router = useRouter()
 const authStore = useAuthStore()

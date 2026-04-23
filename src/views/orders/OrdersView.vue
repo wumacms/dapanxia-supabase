@@ -167,16 +167,16 @@
       </div>
 
       <!-- 空状态 -->
-      <div v-else-if="orders.length === 0" class="flex flex-col items-center justify-center py-12 bg-white rounded-xl shadow-card">
-        <el-icon class="text-6xl text-gray-300 mb-4">
-          <ShoppingCart />
-        </el-icon>
-        <h3 class="text-xl font-semibold text-gray-900 mb-2">暂无订单</h3>
-        <p class="text-gray-500 mb-6">您还没有购买过任何资源</p>
-        <el-button type="primary" @click="browseResources" size="large">
-          浏览资源
-        </el-button>
-      </div>
+      <EmptyState
+        v-else-if="orders.length === 0"
+        :type="searchQuery ? 'search' : 'data'"
+        :title="searchQuery ? '未找到相关订单' : '暂无订单'"
+        :description="searchQuery ? '请尝试调整搜索关键词或重置筛选条件' : '您还没有购买过任何资源，快去浏览一下吧'"
+        show-action
+        :action-text="searchQuery ? '重置搜索' : '浏览资源'"
+        @action="searchQuery ? (searchQuery = '', loadOrders()) : browseResources()"
+        class="bg-white rounded-xl shadow-card"
+      />
 
       <!-- 订单列表 -->
       <div v-else class="bg-white rounded-xl shadow-card overflow-hidden">
@@ -348,10 +348,10 @@ import {
   Refresh,
   Download,
   Loading,
-  ShoppingCart,
   Folder,
   Search
 } from '@element-plus/icons-vue'
+import EmptyState from '../../components/EmptyState.vue'
 import { useAuthStore } from '../../stores/auth'
 import { OrderService } from '../../services/orderService'
 import type { Order, PaymentChannel } from '../../types/resources'
