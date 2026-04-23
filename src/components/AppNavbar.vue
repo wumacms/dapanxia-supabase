@@ -83,6 +83,7 @@ const handleLogout = async () => {
       type: 'warning',
     })
     await authStore.signOut()
+    drawer.value = false
     ElMessage.success('已退出登录')
     router.push('/')
   } catch {
