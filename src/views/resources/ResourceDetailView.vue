@@ -221,7 +221,7 @@
           <div class="mb-8">
             <h2 class="text-xl font-semibold text-gray-900 mb-4">资源描述</h2>
             <div class="prose max-w-none">
-              <div class="markdown-content" v-html="renderMarkdown(resource.description)"></div>
+              <MarkdownRenderer :content="resource.description" />
             </div>
           </div>
 
@@ -285,37 +285,9 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted, watch } from 'vue'
+import { ref, computed, onMounted, watch, defineAsyncComponent } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { ElMessage } from 'element-plus'
-import { Marked } from 'marked'
-import { markedHighlight } from 'marked-highlight'
-import hljs from 'highlight.js'
-import DOMPurify from 'dompurify'
-
-// 创建 marked 实例并配置 highlight
-const markedInstance = new Marked(
-  markedHighlight({
-    langPrefix: 'hljs language-',
-    highlight(code: string, lang: string) {
-      const language = hljs.getLanguage(lang) ? lang : 'plaintext'
-      return hljs.highlight(code, { language }).value
-    }
-  })
-)
-
-// 配置 DOMPurify 保留 highlight.js 相关的 class
-const dompurifyConfig = {
-  ADD_TAGS: ['span'],
-  ADD_ATTR: ['class']
-}
-
-// 同步渲染 Markdown
-const renderMarkdown = (content: string): string => {
-  // @ts-ignore - marked.parse 支持同步模式
-  const html = markedInstance.parse(content || '', { async: false })
-  return DOMPurify.sanitize(html, dompurifyConfig)
-}
 import {
   Loading,
   FolderOpened,
@@ -335,6 +307,13 @@ import { OrderService } from '../../services/orderService'
 import type { Resource } from '../../types/resources'
 import { ResourceCategoryLabels } from '../../types/resources'
 import { CloudPlatformLabels } from '../../types/resources'
+
+// 异步加载 Markdown 渲染组件，实现代码拆分
+const MarkdownRenderer = defineAsyncComponent(() => import('../../components/MarkdownRenderer.vue'))
+
+
+
+
 
 const route = useRoute()
 const router = useRouter()

@@ -164,7 +164,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted } from 'vue'
+import { ref, computed, onMounted, onUnmounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { ElMessage } from 'element-plus'
 import { Search, Loading } from '@element-plus/icons-vue'
@@ -188,6 +188,7 @@ const pageSize = ref(12)
 const totalResources = ref(0)
 const resources = ref<Resource[]>([])
 const loading = ref(false)
+const searchTimer = ref<number | null>(null)
 
 // 筛选选项
 const categories = computed(() => [
@@ -209,6 +210,12 @@ const platforms = computed(() => [
 // 生命周期
 onMounted(() => {
   loadResources()
+})
+
+onUnmounted(() => {
+  if (searchTimer.value) {
+    clearTimeout(searchTimer.value)
+  }
 })
 
 // 方法
@@ -288,11 +295,13 @@ const getSortOrder = (sort: string): 'asc' | 'desc' => {
 }
 
 const handleSearch = () => {
-  // 防抖处理
-  clearTimeout((window as any).searchTimer)
-  ;(window as any).searchTimer = setTimeout(() => {
+  if (searchTimer.value) {
+    clearTimeout(searchTimer.value)
+  }
+  searchTimer.value = window.setTimeout(() => {
     currentPage.value = 1
     loadResources()
+    searchTimer.value = null
   }, 500)
 }
 
