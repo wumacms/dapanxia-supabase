@@ -50,7 +50,7 @@ onMounted(() => {
 
 <template>
   <div class="bg-gray-50 min-h-[calc(100vh-64px)]">
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
       <!-- 加载状态 -->
       <div v-if="loading" class="flex flex-col items-center justify-center py-12">
         <el-icon class="text-4xl text-blue-500 is-loading">

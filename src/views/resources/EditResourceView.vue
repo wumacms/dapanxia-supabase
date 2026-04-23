@@ -1,7 +1,7 @@
 <template>
   <div class="bg-gray-50 min-h-[calc(100vh-64px)]">
     <!-- 加载状态 -->
-    <div v-if="loading" class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+    <div v-if="loading" class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
       <div class="flex flex-col items-center justify-center py-12">
         <el-icon class="loading-icon is-loading">
           <Loading />
@@ -11,7 +11,7 @@
     </div>
 
     <!-- 错误状态 -->
-    <div v-else-if="error" class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+    <div v-else-if="error" class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
       <div class="flex flex-col items-center justify-center py-12 bg-white rounded-xl shadow-card">
         <el-icon class="empty-icon text-red-500">
           <CircleCloseFilled />
@@ -24,7 +24,7 @@
       </div>
     </div>
 
-    <div v-else-if="resource" class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <div v-else-if="resource" class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
       <!-- 面包屑导航 -->
       <div class="mb-6">
         <el-breadcrumb separator="/">

@@ -80,7 +80,9 @@ const goToLogin = () => {
     <div class="w-full max-w-md bg-white rounded-2xl p-10 shadow-2xl">
       <!-- Logo -->
       <div class="text-center mb-8">
-        <img src="/logo.png" alt="盘大侠" class="h-12 w-auto mx-auto mb-4 object-contain" />
+        <router-link to="/">
+          <img src="/logo.png" alt="盘大侠" class="h-12 w-auto mx-auto mb-6 object-contain cursor-pointer" />
+        </router-link>
         <h1 class="text-2xl font-bold text-gray-900 mb-2">用户注册</h1>
         <!-- <p class="text-gray-500">注册以开始使用</p> -->
       </div>
@@ -151,10 +153,15 @@ const goToLogin = () => {
         </el-form-item>
       </el-form>
 
-      <div class="text-center mt-6">
-        <span class="text-gray-500">已有账户？</span>
-        <el-button type="primary" link @click="goToLogin">
-          立即登录
+      <div class="text-center mt-6 flex flex-col items-center space-y-2">
+        <div>
+          <span class="text-gray-500">已有账户？</span>
+          <el-button type="primary" link @click="goToLogin">
+            立即登录
+          </el-button>
+        </div>
+        <el-button type="info" link @click="router.push('/')" class="!text-gray-400 hover:!text-gray-600">
+          返回首页
         </el-button>
       </div>
     </div>

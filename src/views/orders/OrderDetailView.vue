@@ -1,6 +1,6 @@
 <template>
   <div class="bg-gray-50 min-h-[calc(100vh-64px)]">
-    <div v-if="loading" class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+    <div v-if="loading" class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
       <div class="flex flex-col items-center justify-center py-12">
         <el-icon class="text-4xl text-blue-500 is-loading">
           <Loading />
@@ -9,7 +9,7 @@
       </div>
     </div>
 
-    <div v-else-if="error" class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+    <div v-else-if="error" class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
       <EmptyState
         type="error"
         title="加载失败"
@@ -21,7 +21,7 @@
       />
     </div>
 
-    <div v-else-if="order" class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <div v-else-if="order" class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
       <!-- 面包屑导航 -->
       <div class="mb-6">
         <el-breadcrumb separator="/">

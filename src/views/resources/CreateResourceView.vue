@@ -1,6 +1,6 @@
 <template>
   <div class="bg-gray-50 min-h-[calc(100vh-64px)]">
-    <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
       <!-- 面包屑导航 -->
       <div class="mb-6">
         <el-breadcrumb separator="/">

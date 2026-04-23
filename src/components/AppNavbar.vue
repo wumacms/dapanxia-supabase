@@ -262,10 +262,10 @@ const goToChangePassword = () => {
       <div class="bg-gray-50 rounded-xl p-4 mb-6">
         <h4 class="text-sm font-medium text-gray-700 mb-4">账户信息</h4>
         <div class="space-y-3 text-sm">
-          <div class="flex justify-between">
+          <!-- <div class="flex justify-between">
             <span class="text-gray-500">用户ID</span>
             <span class="text-gray-900 font-mono">{{ authStore.user?.id?.slice(0, 8) }}...</span>
-          </div>
+          </div> -->
           <div class="flex justify-between">
             <span class="text-gray-500">邮箱</span>
             <span class="text-gray-900">{{ authStore.userEmail }}</span>
