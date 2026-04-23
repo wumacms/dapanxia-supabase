@@ -43,11 +43,16 @@ const displayName = computed(() => {
 
 // 导航菜单项
 const navItems = [
-  { name: 'Home', label: '首页', path: '/', icon: HomeFilled },
-  { name: 'Resources', label: '资源库', path: '/resources', icon: Folder },
-  { name: 'MyResources', label: '我的资源', path: '/my-resources', icon: Folder },
-  { name: 'Orders', label: '我的订单', path: '/orders', icon: List },
+  { name: 'Home',        label: '首页',    path: '/',             icon: HomeFilled, requiresAuth: false },
+  { name: 'Resources',   label: '资源库',  path: '/resources',    icon: Folder,     requiresAuth: false },
+  { name: 'MyResources', label: '我的资源', path: '/my-resources', icon: Folder,    requiresAuth: true  },
+  { name: 'Orders',      label: '我的订单', path: '/orders',       icon: List,      requiresAuth: true  },
 ]
+
+// 根据登录状态过滤可见菜单项
+const visibleNavItems = computed(() =>
+  navItems.filter(item => !item.requiresAuth || isAuthenticated.value)
+)
 
 // 判断当前路由是否激活
 const isActive = (path: string) => {
@@ -79,7 +84,7 @@ const handleLogout = async () => {
     })
     await authStore.signOut()
     ElMessage.success('已退出登录')
-    router.push('/login')
+    router.push('/')
   } catch {
     // 用户取消
   }
@@ -120,9 +125,9 @@ const goToChangePassword = () => {
             <img src="/logo.png" alt="盘大侠" class="h-12 w-auto" />
           </router-link>
 
-          <!-- 导航链接 - 仅登录后显示 -->
-          <div v-if="isAuthenticated" class="hidden md:flex items-center ml-8 space-x-1">
-            <router-link v-for="item in navItems" :key="item.name" :to="item.path"
+          <!-- 导航链接 -->
+          <div class="hidden md:flex items-center ml-8 space-x-1">
+            <router-link v-for="item in visibleNavItems" :key="item.name" :to="item.path"
               class="nav-link px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200 flex items-center"
               :class="[
                 isActive(item.path)
@@ -202,9 +207,9 @@ const goToChangePassword = () => {
     </div>
 
     <!-- 移动端导航栏 - 底部固定 -->
-    <div v-if="isAuthenticated" class="md:hidden fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 z-50">
+    <div class="md:hidden fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 z-50">
       <div class="flex justify-around py-2">
-        <router-link v-for="item in navItems" :key="item.name" :to="item.path"
+        <router-link v-for="item in visibleNavItems" :key="item.name" :to="item.path"
           class="flex flex-col items-center py-2 px-4 rounded-lg" :class="[
             isActive(item.path)
               ? 'text-blue-600'

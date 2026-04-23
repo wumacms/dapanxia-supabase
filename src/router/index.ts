@@ -19,7 +19,7 @@ const routes: RouteRecordRaw[] = [
     path: '/',
     name: 'Home',
     component: () => import('../views/HomeView.vue'),
-    meta: { requiresAuth: true },
+    // 无需认证，游客可访问首页
   },
   {
     path: '/change-password',

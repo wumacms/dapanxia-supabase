@@ -16,7 +16,6 @@ const loading = ref(false)
 
 // 方法
 const loadData = async () => {
-  if (!authStore.isAuthenticated || !authStore.user?.id) return
 
   loading.value = true
   try {
@@ -46,9 +45,7 @@ const viewAllResources = () => {
 
 // 生命周期
 onMounted(() => {
-  if (authStore.isAuthenticated) {
-    loadData()
-  }
+  loadData()
 })
 </script>
 
