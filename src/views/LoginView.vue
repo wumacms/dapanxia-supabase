@@ -59,9 +59,9 @@ const goToRegister = () => {
     <div class="w-full max-w-md bg-white rounded-2xl p-10 shadow-2xl">
       <!-- Logo -->
       <div class="text-center mb-8">
-        <img src="/logo.png" alt="大盘侠" class="w-28 h-auto mx-auto mb-4" />
-        <h1 class="text-2xl font-bold text-gray-900 mb-2">登录大盘侠</h1>
-        <p class="text-gray-500">登录您的账户以继续</p>
+        <img src="/logo.png" alt="盘大侠" class="h-12 w-auto mx-auto mb-4 object-contain" />
+        <h1 class="text-2xl font-bold text-gray-900 mb-2">用户登录</h1>
+        <!-- <p class="text-gray-500">登录您的账户以继续</p> -->
       </div>
 
       <el-form

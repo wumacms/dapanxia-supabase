@@ -73,9 +73,9 @@ const goBack = () => {
     <div class="w-full max-w-md bg-white rounded-2xl p-10 shadow-2xl">
       <!-- Logo -->
       <div class="text-center mb-8">
-        <img src="/logo.png" alt="大盘侠" class="w-20 h-auto mx-auto mb-4" />
+        <img src="/logo.png" alt="盘大侠" class="h-12 w-auto mx-auto mb-4 object-contain" />
         <h1 class="text-2xl font-bold text-gray-900 mb-2">修改密码</h1>
-        <p class="text-gray-500">请输入您的当前密码和新密码</p>
+        <!-- <p class="text-gray-500">请输入您的当前密码和新密码</p> -->
       </div>
 
       <el-form
