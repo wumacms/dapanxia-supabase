@@ -3,12 +3,10 @@ import { ref, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { ElMessage } from 'element-plus'
 import { Folder, ShoppingCart, Loading } from '@element-plus/icons-vue'
-import { useAuthStore } from '../stores/auth'
 import { ResourceService } from '../services/resourceService'
 import type { Resource } from '../types/resources'
 
 const router = useRouter()
-const authStore = useAuthStore()
 
 const hotResources = ref<Resource[]>([])
 const newResources = ref<Resource[]>([])
