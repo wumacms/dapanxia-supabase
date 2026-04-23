@@ -38,10 +38,13 @@ export class ResourceService {
     const usePublicView = status === ResourceStatus.PUBLISHED && !user_id
     const tableName = usePublicView ? 'public_resources' : 'resources'
     
+    // 定义列表页需要的精简字段，排除大文本 description
+    const listFields = 'id, user_id, title, cover_url, category, platform, price, is_free, status, is_visible, view_count, purchase_count, published_at, created_at, updated_at, author_email, author_avatar'
+
     // 构建查询
     let query = supabase
       .from(tableName)
-      .select('*', { count: 'exact' })
+      .select(listFields, { count: 'exact' })
 
     // 搜索条件
     if (search) {
@@ -138,9 +141,11 @@ export class ResourceService {
 
     const resourcesWithTags = resources.map(resource => ({
       ...resource,
+      description: '', // 列表页不需要描述，补充空字符串以满足类型检查
+      resource_url: null, // 列表页不需要资源链接，补充 null
       tags: tagsMap[resource.id] || [],
       author_avatar: tableName === 'resources' ? avatarsMap[resource.user_id] || resource.author_avatar : resource.author_avatar
-    }))
+    })) as Resource[]
 
     const total = count || 0
     const total_pages = Math.ceil(total / limit)
@@ -672,9 +677,11 @@ export class ResourceService {
    * 获取热门资源
    */
   static async getHotResources(limit: number = 10): Promise<Resource[]> {
+    const listFields = 'id, user_id, title, cover_url, category, platform, price, is_free, status, is_visible, view_count, purchase_count, published_at, created_at, updated_at, author_email, author_avatar'
+    
     const { data, error } = await supabase
       .from('public_resources')
-      .select('*')
+      .select(listFields)
       .order('purchase_count', { ascending: false })
       .order('view_count', { ascending: false })
       .limit(limit)
@@ -684,16 +691,22 @@ export class ResourceService {
       throw error
     }
 
-    return data || []
+    return (data || []).map(resource => ({
+      ...resource,
+      description: '',
+      resource_url: null
+    })) as Resource[]
   }
 
   /**
    * 获取最新资源
    */
   static async getNewResources(limit: number = 10): Promise<Resource[]> {
+    const listFields = 'id, user_id, title, cover_url, category, platform, price, is_free, status, is_visible, view_count, purchase_count, published_at, created_at, updated_at, author_email, author_avatar'
+    
     const { data, error } = await supabase
       .from('public_resources')
-      .select('*')
+      .select(listFields)
       .order('created_at', { ascending: false })
       .limit(limit)
 
@@ -702,7 +715,11 @@ export class ResourceService {
       throw error
     }
 
-    return data || []
+    return (data || []).map(resource => ({
+      ...resource,
+      description: '',
+      resource_url: null
+    })) as Resource[]
   }
 
   /**

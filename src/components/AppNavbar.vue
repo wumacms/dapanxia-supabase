@@ -149,12 +149,12 @@ const goToChangePassword = () => {
             <el-dropdown trigger="click" placement="bottom-end">
               <div class="flex items-center space-x-3 cursor-pointer p-2 rounded-lg hover:bg-gray-50 transition-colors">
                 <AvatarUploader :size="36" />
-                <div class="hidden sm:block">
+                <!-- <div class="hidden sm:block">
                   <p class="text-sm font-medium text-gray-700">{{ displayName }}</p>
                 </div>
                 <el-icon class="text-gray-400">
                   <UserFilled />
-                </el-icon>
+                </el-icon> -->
               </div>
               <template #dropdown>
                 <el-dropdown-menu class="w-48">

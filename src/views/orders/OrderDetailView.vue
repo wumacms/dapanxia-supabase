@@ -62,6 +62,7 @@
                 v-if="getResourceCoverUrl(order)"
                 :src="getResourceCoverUrl(order)!"
                 :alt="getResourceTitle(order)"
+                loading="lazy"
                 class="w-full h-full object-cover"
               />
               <div

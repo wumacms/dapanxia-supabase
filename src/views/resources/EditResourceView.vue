@@ -76,6 +76,7 @@
                   <img
                     :src="form.cover_url"
                     alt="封面预览"
+                    loading="lazy"
                     class="w-full h-full object-cover"
                   />
                   <div class="absolute top-0 right-2">

@@ -20,9 +20,25 @@ export const useAuthStore = defineStore('auth', () => {
   async function initAuth() {
     loading.value = true
     try {
-      const { data } = await supabase.auth.getUser()
-      user.value = data.user
+      // 5秒超时处理
+      const timeoutPromise = new Promise((_, reject) => 
+        setTimeout(() => reject(new Error('Auth timeout')), 5000)
+      )
+      
+      // 优先使用 getSession
+      const authPromise = supabase.auth.getSession()
+      
+      const result = await Promise.race([authPromise, timeoutPromise]) as any
+      const session = result?.data?.session
+      user.value = session?.user ?? null
 
+      // 设置监听，后续状态变化自动更新
+      supabase.auth.onAuthStateChange((_event, session) => {
+        user.value = session?.user ?? null
+      })
+    } catch (err) {
+      console.error('Auth initialization failed or timed out:', err)
+      // 如果初始化失败，也尝试设置监听以备后用
       supabase.auth.onAuthStateChange((_event, session) => {
         user.value = session?.user ?? null
       })
