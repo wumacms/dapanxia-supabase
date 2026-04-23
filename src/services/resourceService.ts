@@ -39,7 +39,12 @@ export class ResourceService {
     const tableName = usePublicView ? 'public_resources' : 'resources'
     
     // 定义列表页需要的精简字段，排除大文本 description
-    const listFields = 'id, user_id, title, cover_url, category, platform, price, is_free, status, is_visible, view_count, purchase_count, published_at, created_at, updated_at, author_email, author_avatar'
+    // 注意：author_email 和 author_avatar 仅在视图中存在
+    let listFields = 'id, user_id, title, cover_url, category, platform, price, is_free, status, is_visible, view_count, purchase_count, published_at, created_at, updated_at'
+    
+    if (usePublicView) {
+      listFields += ', author_email, author_avatar'
+    }
 
     // 构建查询
     let query = supabase
@@ -106,7 +111,7 @@ export class ResourceService {
       throw error
     }
 
-    const resources = data || []
+    const resources = (data as any[]) || []
 
     // 批量获取所有标签（修复 N+1 查询）
     let tagsMap: Record<string, string[]> = {}
@@ -144,7 +149,9 @@ export class ResourceService {
       description: '', // 列表页不需要描述，补充空字符串以满足类型检查
       resource_url: null, // 列表页不需要资源链接，补充 null
       tags: tagsMap[resource.id] || [],
-      author_avatar: tableName === 'resources' ? avatarsMap[resource.user_id] || resource.author_avatar : resource.author_avatar
+      author_avatar: tableName === 'resources' 
+        ? (avatarsMap[resource.user_id] || (resource as any).author_avatar) 
+        : (resource as any).author_avatar
     })) as Resource[]
 
     const total = count || 0
