@@ -17,65 +17,30 @@
 
       <!-- 统计卡片 -->
       <div class="grid grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-        <!-- 总订单数 -->
-        <div class="bg-white rounded-xl p-6 shadow-card transition-all duration-300 hover:-translate-y-0.5 hover:shadow-card-hover border-l-4 border-blue-500">
-          <div class="flex items-center justify-between">
-            <div>
-              <p class="text-gray-500 text-sm">总订单数</p>
-              <p class="text-3xl font-bold text-gray-900 mt-2">{{ stats.total_orders || 0 }}</p>
-            </div>
-            <div class="w-12 h-12 rounded-xl bg-blue-100 flex items-center justify-center">
-              <el-icon class="text-2xl text-blue-600">
-                <List />
-              </el-icon>
-            </div>
-          </div>
-        </div>
-
-        <!-- 待支付 -->
-        <div class="bg-white rounded-xl p-6 shadow-card transition-all duration-300 hover:-translate-y-0.5 hover:shadow-card-hover border-l-4 border-yellow-500">
-          <div class="flex items-center justify-between">
-            <div>
-              <p class="text-gray-500 text-sm">待支付</p>
-              <p class="text-3xl font-bold text-gray-900 mt-2">{{ stats.pending_orders || 0 }}</p>
-            </div>
-            <div class="w-12 h-12 rounded-xl bg-yellow-100 flex items-center justify-center">
-              <el-icon class="text-2xl text-yellow-600">
-                <Clock />
-              </el-icon>
-            </div>
-          </div>
-        </div>
-
-        <!-- 已支付 -->
-        <div class="bg-white rounded-xl p-6 shadow-card transition-all duration-300 hover:-translate-y-0.5 hover:shadow-card-hover border-l-4 border-green-500">
-          <div class="flex items-center justify-between">
-            <div>
-              <p class="text-gray-500 text-sm">已支付</p>
-              <p class="text-3xl font-bold text-gray-900 mt-2">{{ stats.paid_orders || 0 }}</p>
-            </div>
-            <div class="w-12 h-12 rounded-xl bg-green-100 flex items-center justify-center">
-              <el-icon class="text-2xl text-green-600">
-                <Check />
-              </el-icon>
-            </div>
-          </div>
-        </div>
-
-        <!-- 总消费 -->
-        <div class="bg-white rounded-xl p-6 shadow-card transition-all duration-300 hover:-translate-y-0.5 hover:shadow-card-hover border-l-4 border-purple-500">
-          <div class="flex items-center justify-between">
-            <div>
-              <p class="text-gray-500 text-sm">总消费</p>
-              <p class="text-3xl font-bold text-gray-900 mt-2">¥{{ stats.total_spent?.toFixed(2) || '0.00' }}</p>
-            </div>
-            <div class="w-12 h-12 rounded-xl bg-purple-100 flex items-center justify-center">
-              <el-icon class="text-2xl text-purple-600">
-                <Money />
-              </el-icon>
-            </div>
-          </div>
-        </div>
+        <StatCard
+          title="总订单数"
+          :value="stats.total_orders || 0"
+          :icon="List"
+          type="blue"
+        />
+        <StatCard
+          title="待支付"
+          :value="stats.pending_orders || 0"
+          :icon="Clock"
+          type="yellow"
+        />
+        <StatCard
+          title="已支付"
+          :value="stats.paid_orders || 0"
+          :icon="Check"
+          type="green"
+        />
+        <StatCard
+          title="总消费"
+          :value="`¥${stats.total_spent?.toFixed(2) || '0.00'}`"
+          :icon="Money"
+          type="purple"
+        />
       </div>
 
       <!-- 筛选和操作栏 -->
@@ -352,6 +317,7 @@ import {
   Search
 } from '@element-plus/icons-vue'
 import EmptyState from '../../components/EmptyState.vue'
+import StatCard from '../../components/StatCard.vue'
 import { useAuthStore } from '../../stores/auth'
 import { OrderService } from '../../services/orderService'
 import type { Order, PaymentChannel } from '../../types/resources'

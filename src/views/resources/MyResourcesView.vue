@@ -18,65 +18,30 @@
 
       <!-- 统计卡片 -->
       <div class="grid grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-        <!-- 总资源数 -->
-        <div class="bg-white rounded-xl p-6 shadow-card transition-all duration-300 hover:-translate-y-0.5 hover:shadow-card-hover border-l-4 border-blue-500">
-          <div class="flex items-center justify-between">
-            <div>
-              <p class="text-gray-500 text-sm">总资源数</p>
-              <p class="text-3xl font-bold text-gray-900 mt-2">{{ stats.total_resources || 0 }}</p>
-            </div>
-            <div class="w-12 h-12 rounded-xl bg-blue-100 flex items-center justify-center">
-              <el-icon class="text-2xl text-blue-600">
-                <Folder />
-              </el-icon>
-            </div>
-          </div>
-        </div>
-
-        <!-- 已发布 -->
-        <div class="bg-white rounded-xl p-6 shadow-card transition-all duration-300 hover:-translate-y-0.5 hover:shadow-card-hover border-l-4 border-green-500">
-          <div class="flex items-center justify-between">
-            <div>
-              <p class="text-gray-500 text-sm">已发布</p>
-              <p class="text-3xl font-bold text-gray-900 mt-2">{{ stats.published_resources || 0 }}</p>
-            </div>
-            <div class="w-12 h-12 rounded-xl bg-green-100 flex items-center justify-center">
-              <el-icon class="text-2xl text-green-600">
-                <Check />
-              </el-icon>
-            </div>
-          </div>
-        </div>
-
-        <!-- 草稿 -->
-        <div class="bg-white rounded-xl p-6 shadow-card transition-all duration-300 hover:-translate-y-0.5 hover:shadow-card-hover border-l-4 border-yellow-500">
-          <div class="flex items-center justify-between">
-            <div>
-              <p class="text-gray-500 text-sm">草稿</p>
-              <p class="text-3xl font-bold text-gray-900 mt-2">{{ stats.draft_resources || 0 }}</p>
-            </div>
-            <div class="w-12 h-12 rounded-xl bg-yellow-100 flex items-center justify-center">
-              <el-icon class="text-2xl text-yellow-600">
-                <Edit />
-              </el-icon>
-            </div>
-          </div>
-        </div>
-
-        <!-- 总收入 -->
-        <div class="bg-white rounded-xl p-6 shadow-card transition-all duration-300 hover:-translate-y-0.5 hover:shadow-card-hover border-l-4 border-purple-500">
-          <div class="flex items-center justify-between">
-            <div>
-              <p class="text-gray-500 text-sm">总收入</p>
-              <p class="text-3xl font-bold text-gray-900 mt-2">¥{{ stats.total_revenue?.toFixed(2) || '0.00' }}</p>
-            </div>
-            <div class="w-12 h-12 rounded-xl bg-purple-100 flex items-center justify-center">
-              <el-icon class="text-2xl text-purple-600">
-                <Money />
-              </el-icon>
-            </div>
-          </div>
-        </div>
+        <StatCard
+          title="总资源数"
+          :value="stats.total_resources || 0"
+          :icon="Folder"
+          type="blue"
+        />
+        <StatCard
+          title="已发布"
+          :value="stats.published_resources || 0"
+          :icon="Check"
+          type="green"
+        />
+        <StatCard
+          title="草稿"
+          :value="stats.draft_resources || 0"
+          :icon="Edit"
+          type="yellow"
+        />
+        <StatCard
+          title="总收入"
+          :value="`¥${stats.total_revenue?.toFixed(2) || '0.00'}`"
+          :icon="Money"
+          type="purple"
+        />
       </div>
 
       <!-- 筛选和操作栏 -->
@@ -376,6 +341,7 @@ import { ResourceCategoryLabels } from '../../types/resources'
 import { CloudPlatformLabels } from '../../types/resources'
 import { ResourceStatusLabels } from '../../types/resources'
 import EmptyState from '../../components/EmptyState.vue'
+import StatCard from '../../components/StatCard.vue'
 
 const router = useRouter()
 const authStore = useAuthStore()
