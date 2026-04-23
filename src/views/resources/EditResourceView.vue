@@ -123,7 +123,7 @@
                     @change="handleFileUpload"
                   />
                   <p class="text-sm text-gray-500">
-                    支持 JPG、PNG 格式，大小不超过 500KB
+                    支持 JPG、PNG 格式，大小不超过 {{ maxSizeMB }}MB
                   </p>
                 </div>
               </div>
@@ -343,6 +343,7 @@ import { ResourceService } from '../../services/resourceService'
 import { UpdateResourceRequest, Resource, ResourceCategory, CloudPlatform, ResourceStatus } from '../../types/resources'
 import { ResourceCategoryLabels, CloudPlatformLabels } from '../../types/resources'
 import MarkdownEditor from '../../components/resources/MarkdownEditor.vue'
+import { getErrorMessage } from '../../utils/i18n'
 
 const route = useRoute()
 const router = useRouter()
@@ -386,6 +387,7 @@ const loading = ref(false)
 const error = ref('')
 const uploading = ref(false)
 const submitting = ref(false)
+const maxSizeMB = Number(import.meta.env.VITE_MAX_UPLOAD_SIZE_MB) || 5
 
 // 计算属性，确保 description 是 string 类型
 const descriptionValue = computed({
@@ -484,7 +486,7 @@ const loadResource = async () => {
     form.tags = loadedResource.tags || []
   } catch (err: any) {
     console.error('Error loading resource:', err)
-    error.value = err.message || '加载资源失败'
+    error.value = getErrorMessage(err) || '加载资源失败'
   } finally {
     loading.value = false
   }
@@ -501,7 +503,7 @@ const handleFileUpload = async (event: Event) => {
 
   // 验证文件类型和大小
   const validTypes = ['image/jpeg', 'image/png', 'image/webp']
-  const maxSize = 5 * 1024 * 1024 // 5MB
+  const maxSize = maxSizeMB * 1024 * 1024
 
   if (!validTypes.includes(file.type)) {
     ElMessage.error('只支持 JPG、PNG、WebP 格式的图片')
@@ -509,7 +511,7 @@ const handleFileUpload = async (event: Event) => {
   }
 
   if (file.size > maxSize) {
-    ElMessage.error('图片大小不能超过 5MB')
+    ElMessage.error(`图片大小不能超过 ${maxSizeMB}MB`)
     return
   }
 
@@ -530,7 +532,7 @@ const handleFileUpload = async (event: Event) => {
     ElMessage.success('图片上传成功')
   } catch (error: any) {
     console.error('Error uploading image:', error)
-    ElMessage.error(error.message || '图片上传失败')
+    ElMessage.error(getErrorMessage(error) || '图片上传失败')
   } finally {
     uploading.value = false
     // 清空文件输入
@@ -552,7 +554,7 @@ const removeCoverImage = async () => {
     ElMessage.success('封面图片已删除')
   } catch (error: any) {
     console.error('Error deleting cover image:', error)
-    ElMessage.error(error.message || '删除失败')
+    ElMessage.error(getErrorMessage(error) || '删除失败')
   }
 }
 
@@ -611,7 +613,7 @@ const submitForm = async () => {
       })
     } catch (error: any) {
       console.error('Error updating resource:', error)
-      ElMessage.error(error.message || (form.status === ResourceStatus.PUBLISHED ? '更新发布失败' : '保存失败'))
+      ElMessage.error(getErrorMessage(error) || (form.status === ResourceStatus.PUBLISHED ? '更新发布失败' : '保存失败'))
     } finally {
       submitting.value = false
     }

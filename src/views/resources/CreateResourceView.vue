@@ -98,7 +98,7 @@
                     @change="handleFileUpload"
                   />
                   <p class="text-sm text-gray-500">
-                    支持 JPG、PNG 格式，大小不超过 5MB
+                    支持 JPG、PNG 格式，大小不超过 {{ maxSizeMB }}MB
                   </p>
                 </div>
               </div>
@@ -307,6 +307,7 @@ import { ResourceService } from '../../services/resourceService'
 import { CreateResourceRequest, ResourceCategory, CloudPlatform, ResourceStatus } from '../../types/resources'
 import { ResourceCategoryLabels, CloudPlatformLabels } from '../../types/resources'
 import MarkdownEditor from '../../components/resources/MarkdownEditor.vue'
+import { getErrorMessage } from '../../utils/i18n'
 
 const router = useRouter()
 const authStore = useAuthStore()
@@ -346,6 +347,7 @@ const popularTags = [
 
 const uploading = ref(false)
 const submitting = ref(false)
+const maxSizeMB = Number(import.meta.env.VITE_MAX_UPLOAD_SIZE_MB) || 5
 
 // 表单验证规则
 const rules: FormRules = {
@@ -393,7 +395,7 @@ const handleFileUpload = async (event: Event) => {
 
   // 验证文件类型和大小
   const validTypes = ['image/jpeg', 'image/png', 'image/webp']
-  const maxSize = 5 * 1024 * 1024 // 5MB
+  const maxSize = maxSizeMB * 1024 * 1024
 
   if (!validTypes.includes(file.type)) {
     ElMessage.error('只支持 JPG、PNG、WebP 格式的图片')
@@ -401,7 +403,7 @@ const handleFileUpload = async (event: Event) => {
   }
 
   if (file.size > maxSize) {
-    ElMessage.error('图片大小不能超过 5MB')
+    ElMessage.error(`图片大小不能超过 ${maxSizeMB}MB`)
     return
   }
 
@@ -417,7 +419,7 @@ const handleFileUpload = async (event: Event) => {
     ElMessage.success('图片上传成功')
   } catch (error: any) {
     console.error('Error uploading image:', error)
-    ElMessage.error(error.message || '图片上传失败')
+    ElMessage.error(getErrorMessage(error) || '图片上传失败')
   } finally {
     uploading.value = false
     // 清空文件输入
@@ -480,7 +482,7 @@ const submitForm = async () => {
       })
     } catch (error: any) {
       console.error('Error creating resource:', error)
-      ElMessage.error(error.message || (form.status === ResourceStatus.PUBLISHED ? '发布失败' : '保存失败'))
+      ElMessage.error(getErrorMessage(error) || (form.status === ResourceStatus.PUBLISHED ? '发布失败' : '保存失败'))
     } finally {
       submitting.value = false
     }
