@@ -6,6 +6,7 @@ import { Lock, Message } from '@element-plus/icons-vue'
 import { useAuthStore } from '../stores/auth'
 import { getErrorMessage } from '../utils/i18n'
 import { validatePassword, validateConfirmPassword, calculatePasswordStrength } from '../utils/validation'
+import MarkdownRenderer from '../components/MarkdownRenderer.vue'
 
 const router = useRouter()
 const authStore = useAuthStore()
@@ -17,7 +18,34 @@ const form = reactive({
   email: '',
   password: '',
   confirmPassword: '',
+  agreed: false,
 })
+
+// 协议弹窗状态
+const policyDialog = reactive({
+  visible: false,
+  title: '',
+  content: '',
+  loading: false
+})
+
+const showPolicy = async (type: 'user-agreement' | 'privacy-policy') => {
+  policyDialog.title = type === 'user-agreement' ? '用户协议' : '隐私政策'
+  policyDialog.visible = true
+  policyDialog.loading = true
+  
+  try {
+    const filename = type === 'user-agreement' ? 'user-agreement.md' : 'privacy-policy.md'
+    const response = await fetch(`/docs/${filename}`)
+    if (!response.ok) throw new Error('无法加载文档')
+    policyDialog.content = await response.text()
+  } catch (error) {
+    console.error('Failed to fetch policy:', error)
+    policyDialog.content = '# 加载失败\n抱歉，无法加载该文档。'
+  } finally {
+    policyDialog.loading = false
+  }
+}
 
 // 密码强度计算
 const passwordStrength = computed(() => calculatePasswordStrength(form.password))
@@ -44,6 +72,11 @@ const handleRegister = async (formEl: FormInstance | undefined) => {
 
   await formEl.validate(async (valid) => {
     if (!valid) return
+
+    if (!form.agreed) {
+      ElMessage.warning('请先阅读并勾选用户协议和隐私政策')
+      return
+    }
 
     loading.value = true
     try {
@@ -141,6 +174,14 @@ const goToLogin = () => {
           />
         </el-form-item>
 
+        <el-form-item prop="agreed">
+          <el-checkbox v-model="form.agreed">
+            <span class="text-sm text-gray-500">
+              我已阅读并同意<span class="text-primary-600 hover:text-primary-500 cursor-pointer transition-colors" @click.stop="showPolicy('user-agreement')">《用户协议》</span>和<span class="text-primary-600 hover:text-primary-500 cursor-pointer transition-colors" @click.stop="showPolicy('privacy-policy')">《隐私政策》</span>
+            </span>
+          </el-checkbox>
+        </el-form-item>
+
         <el-form-item class="mt-6">
           <el-button
             type="primary"
@@ -166,7 +207,37 @@ const goToLogin = () => {
       </div>
     </div>
   </div>
+
+  <!-- 协议弹窗 -->
+  <el-dialog
+    v-model="policyDialog.visible"
+    :title="policyDialog.title"
+    width="80%"
+    max-width="800px"
+    append-to-body
+    destroy-on-close
+    class="policy-dialog"
+  >
+    <div v-if="policyDialog.loading" class="py-10">
+      <el-skeleton :rows="10" animated />
+    </div>
+    <div v-else class="max-h-[60vh] overflow-y-auto pr-2">
+      <MarkdownRenderer :content="policyDialog.content" />
+    </div>
+    <template #footer>
+      <el-button type="primary" @click="policyDialog.visible = false">确定</el-button>
+    </template>
+  </el-dialog>
 </template>
+
+<style scoped>
+:deep(.policy-dialog) {
+  border-radius: 1rem;
+}
+:deep(.policy-dialog .el-dialog__body) {
+  padding-top: 10px;
+}
+</style>
 
 <script lang="ts">
 import { Folder } from '@element-plus/icons-vue'

@@ -68,6 +68,11 @@ const routes: RouteRecordRaw[] = [
     component: () => import('../views/orders/OrderDetailView.vue'),
     meta: { requiresAuth: true },
   },
+  {
+    path: '/policy/:type',
+    name: 'Policy',
+    component: () => import('../views/PolicyView.vue'),
+  },
 ]
 
 const router = createRouter({
