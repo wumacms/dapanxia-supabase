@@ -1,20 +1,15 @@
 <template>
   <div class="bg-gray-50 min-h-[calc(100vh-64px)]">
     <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-      <!-- 面包屑导航 -->
-      <div class="mb-6">
-        <el-breadcrumb separator="/">
-          <el-breadcrumb-item :to="{ name: 'Home' }">首页</el-breadcrumb-item>
-          <el-breadcrumb-item :to="{ name: 'MyResources' }">我的资源</el-breadcrumb-item>
-          <el-breadcrumb-item>发布新资源</el-breadcrumb-item>
-        </el-breadcrumb>
-      </div>
-
-      <!-- 页面标题 -->
-      <div class="mb-8">
-        <h1 class="text-3xl font-bold text-gray-900">发布新资源</h1>
-        <p class="mt-2 text-gray-500">填写资源信息，发布到网盘资源库供其他用户下载</p>
-      </div>
+      <PageHeader
+        title="发布新资源"
+        description="填写资源信息，发布到网盘资源库供其他用户下载"
+        :breadcrumbs="[
+          { label: '首页', to: { name: 'Home' } },
+          { label: '我的资源', to: { name: 'MyResources' } },
+          { label: '发布新资源' }
+        ]"
+      />
 
       <!-- 表单内容 -->
       <el-form
@@ -66,30 +61,32 @@
                   </div>
                 </div>
 
-                <!-- 上传区域 -->
+                <!-- 上传区域（未上传时显示） -->
                 <div
                   v-else
                   class="w-48 h-48 border-2 border-dashed border-gray-300 rounded-lg flex flex-col items-center justify-center cursor-pointer hover:border-blue-500 hover:bg-blue-50/50 transition-all"
                   @click="triggerFileInput"
                 >
-                  <el-icon class="text-3xl text-gray-400 mb-2">
-                    <Upload />
+                  <el-icon class="text-3xl text-gray-400 mb-2" :class="{ 'is-loading': uploading }">
+                    <component :is="uploading ? Loading : Upload" />
                   </el-icon>
-                  <p class="text-sm text-gray-500">点击上传封面</p>
+                  <p class="text-sm text-gray-500">{{ uploading ? '正在上传...' : '点击上传封面' }}</p>
                   <p class="text-xs text-gray-400 mt-1">建议尺寸：800x600px</p>
                 </div>
 
-                <!-- 上传按钮 -->
+                <!-- 辅助操作区域 -->
                 <div class="flex flex-col space-y-2">
                   <el-button
+                    v-if="form.cover_url"
                     type="primary"
+                    plain
                     @click="triggerFileInput"
                     :loading="uploading"
                   >
                     <el-icon class="mr-2">
                       <Upload />
                     </el-icon>
-                    选择图片
+                    更换图片
                   </el-button>
                   <input
                     ref="fileInputRef"
@@ -195,10 +192,10 @@
 
             <!-- 资源描述 -->
             <el-form-item label="资源描述" prop="description" class="mb-6">
-              <MarkdownEditor
+              <RichTextEditor
                 v-model="form.description"
-                height="400px"
-                placeholder="请详细描述资源内容，支持Markdown语法和图片上传..."
+                height="400"
+                placeholder="请详细描述资源内容，支持富文本编辑和图片上传..."
               />
             </el-form-item>
 
@@ -301,13 +298,15 @@ import { ElMessage } from 'element-plus'
 import {
   Upload,
   Close,
-  InfoFilled
+  InfoFilled,
+  Loading
 } from '@element-plus/icons-vue'
 import { useAuthStore } from '../../stores/auth'
 import { ResourceService } from '../../services/resourceService'
 import { CreateResourceRequest, ResourceCategory, CloudPlatform, ResourceStatus } from '../../types/resources'
 import { ResourceCategoryLabels, CloudPlatformLabels } from '../../types/resources'
-import MarkdownEditor from '../../components/resources/MarkdownEditor.vue'
+import RichTextEditor from '../../components/RichTextEditor.vue'
+import PageHeader from '../../components/PageHeader.vue'
 import { getErrorMessage } from '../../utils/i18n'
 
 const router = useRouter()
@@ -415,6 +414,16 @@ const handleFileUpload = async (event: Event) => {
       throw new Error('用户未登录')
     }
 
+    // 如果已有旧的封面图片，先将其删除以节省空间
+    if (form.cover_url) {
+      try {
+        await ResourceService.deleteCoverImage(form.cover_url, userId)
+      } catch (e) {
+        console.warn('Failed to delete old cover image during replacement:', e)
+        // 即使删除失败也继续上传新图片
+      }
+    }
+
     const imageUrl = await ResourceService.uploadCoverImage(file, userId)
     form.cover_url = imageUrl
     ElMessage.success('图片上传成功')
@@ -428,8 +437,22 @@ const handleFileUpload = async (event: Event) => {
   }
 }
 
-const removeCoverImage = () => {
-  form.cover_url = ''
+const removeCoverImage = async () => {
+  if (!form.cover_url) return
+
+  try {
+    const userId = authStore.user?.id
+    if (!userId) {
+      throw new Error('用户未登录')
+    }
+
+    await ResourceService.deleteCoverImage(form.cover_url, userId)
+    form.cover_url = ''
+    ElMessage.success('封面图片已删除')
+  } catch (error: any) {
+    console.error('Error deleting cover image:', error)
+    ElMessage.error(getErrorMessage(error) || '删除失败')
+  }
 }
 
 const handleFreeToggle = (isFree: boolean) => {

@@ -25,14 +25,13 @@
 
     <!-- 资源详情 -->
     <div v-else-if="resource" class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-      <!-- 面包屑导航 -->
-      <div class="mb-6">
-        <el-breadcrumb separator="/">
-          <el-breadcrumb-item :to="{ name: 'Home' }">首页</el-breadcrumb-item>
-          <el-breadcrumb-item :to="{ name: 'Resources' }">资源库</el-breadcrumb-item>
-          <el-breadcrumb-item>{{ resource.title }}</el-breadcrumb-item>
-        </el-breadcrumb>
-      </div>
+      <PageHeader
+        :breadcrumbs="[
+          { label: '首页', to: { name: 'Home' } },
+          { label: '资源库', to: { name: 'Resources' } },
+          { label: resource.title }
+        ]"
+      />
 
       <!-- 主要内容区域 -->
       <div class="bg-white rounded-xl shadow-card overflow-hidden">
@@ -221,7 +220,7 @@
           <div class="mb-8">
             <h2 class="text-xl font-semibold text-gray-900 mb-4">资源描述</h2>
             <div class="prose max-w-none">
-              <MarkdownRenderer :content="resource.description" />
+              <RichTextRenderer :content="resource.description" />
             </div>
           </div>
 
@@ -308,8 +307,9 @@ import type { Resource } from '../../types/resources'
 import { ResourceCategoryLabels } from '../../types/resources'
 import { CloudPlatformLabels } from '../../types/resources'
 
-// 异步加载 Markdown 渲染组件，实现代码拆分
-const MarkdownRenderer = defineAsyncComponent(() => import('../../components/MarkdownRenderer.vue'))
+// 异步加载富文本渲染组件
+const RichTextRenderer = defineAsyncComponent(() => import('../../components/RichTextRenderer.vue'))
+import PageHeader from '../../components/PageHeader.vue'
 
 
 

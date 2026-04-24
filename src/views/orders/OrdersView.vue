@@ -1,19 +1,14 @@
 <template>
   <div class="bg-gray-50 min-h-[calc(100vh-64px)]">
     <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-      <!-- 面包屑导航 -->
-      <div class="mb-6">
-        <el-breadcrumb separator="/">
-          <el-breadcrumb-item :to="{ name: 'Home' }">首页</el-breadcrumb-item>
-          <el-breadcrumb-item>我的订单</el-breadcrumb-item>
-        </el-breadcrumb>
-      </div>
-
-      <!-- 页面标题 -->
-      <div class="mb-8">
-        <h1 class="text-3xl font-bold text-gray-900">我的订单</h1>
-        <p class="mt-2 text-gray-500">查看和管理您的所有购买订单</p>
-      </div>
+      <PageHeader
+        title="我的订单"
+        description="查看和管理您的所有购买订单"
+        :breadcrumbs="[
+          { label: '首页', to: { name: 'Home' } },
+          { label: '我的订单' }
+        ]"
+      />
 
       <!-- 统计卡片 -->
       <div class="grid grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
@@ -318,6 +313,7 @@ import {
 } from '@element-plus/icons-vue'
 import EmptyState from '../../components/EmptyState.vue'
 import StatCard from '../../components/StatCard.vue'
+import PageHeader from '../../components/PageHeader.vue'
 import { useAuthStore } from '../../stores/auth'
 import { OrderService } from '../../services/orderService'
 import type { Order, PaymentChannel } from '../../types/resources'

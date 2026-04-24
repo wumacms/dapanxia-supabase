@@ -22,14 +22,13 @@
     </div>
 
     <div v-else-if="order" class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-      <!-- 面包屑导航 -->
-      <div class="mb-6">
-        <el-breadcrumb separator="/">
-          <el-breadcrumb-item :to="{ name: 'Home' }">首页</el-breadcrumb-item>
-          <el-breadcrumb-item :to="{ name: 'Orders' }">我的订单</el-breadcrumb-item>
-          <el-breadcrumb-item>订单详情</el-breadcrumb-item>
-        </el-breadcrumb>
-      </div>
+      <PageHeader
+        :breadcrumbs="[
+          { label: '首页', to: { name: 'Home' } },
+          { label: '我的订单', to: { name: 'Orders' } },
+          { label: '订单详情' }
+        ]"
+      />
 
       <!-- 订单状态横幅 -->
       <div class="mb-8">
@@ -417,6 +416,7 @@ import {
   Close
 } from '@element-plus/icons-vue'
 import EmptyState from '../../components/EmptyState.vue'
+import PageHeader from '../../components/PageHeader.vue'
 import { useAuthStore } from '../../stores/auth'
 import { OrderService } from '../../services/orderService'
 import { lantuzPayService } from '../../services/lantuzPayService'

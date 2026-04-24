@@ -770,4 +770,27 @@ export class ResourceService {
       throw error
     }
   }
+
+  /**
+   * 上传富文本内容中的图片
+   */
+  static async uploadContentImage(file: File | Blob, userId: string): Promise<string> {
+    const fileExt = file instanceof File ? file.name.split('.').pop() : 'png'
+    const fileName = `${userId}/${Date.now()}-${Math.random().toString(36).substring(2, 9)}.${fileExt}`
+    
+    const { error } = await supabase.storage
+      .from('resource-content')
+      .upload(fileName, file)
+
+    if (error) {
+      console.error('Error uploading content image:', error)
+      throw error
+    }
+
+    const { data } = supabase.storage
+      .from('resource-content')
+      .getPublicUrl(fileName)
+
+    return data.publicUrl
+  }
 }

@@ -1,19 +1,14 @@
 <template>
   <div class="bg-gray-50 min-h-[calc(100vh-64px)]">
     <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-      <!-- 面包屑导航 -->
-      <div class="mb-6">
-        <el-breadcrumb separator="/">
-          <el-breadcrumb-item :to="{ name: 'Home' }">首页</el-breadcrumb-item>
-          <el-breadcrumb-item>资源库</el-breadcrumb-item>
-        </el-breadcrumb>
-      </div>
-
-      <!-- 页面标题 -->
-      <div class="mb-8">
-        <h1 class="text-3xl font-bold text-gray-900">网盘资源库</h1>
-        <p class="mt-2 text-gray-500">浏览和搜索海量网盘资源</p>
-      </div>
+      <PageHeader
+        title="网盘资源库"
+        description="浏览和搜索海量网盘资源"
+        :breadcrumbs="[
+          { label: '首页', to: { name: 'Home' } },
+          { label: '资源库' }
+        ]"
+      />
 
       <!-- 搜索和筛选区域 -->
       <div class="bg-white rounded-xl p-6 shadow-card mb-6">
@@ -170,6 +165,7 @@ import { ElMessage } from 'element-plus'
 import { Search, Loading } from '@element-plus/icons-vue'
 import ResourceCard from '../../components/resources/ResourceCard.vue'
 import EmptyState from '../../components/EmptyState.vue'
+import PageHeader from '../../components/PageHeader.vue'
 import { ResourceService } from '../../services/resourceService'
 import { Resource, ResourceQueryParams, ResourceCategory, CloudPlatform } from '../../types/resources'
 import { ResourceCategoryLabels } from '../../types/resources'

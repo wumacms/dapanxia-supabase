@@ -1,20 +1,15 @@
 <template>
   <div class="bg-gray-50 min-h-[calc(100vh-64px)]">
     <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-      <!-- 面包屑导航 -->
-      <div class="mb-6">
-        <el-breadcrumb separator="/">
-          <el-breadcrumb-item :to="{ name: 'Home' }">首页</el-breadcrumb-item>
-          <el-breadcrumb-item :to="{ name: 'Resources' }">资源库</el-breadcrumb-item>
-          <el-breadcrumb-item>我的资源</el-breadcrumb-item>
-        </el-breadcrumb>
-      </div>
-
-      <!-- 页面标题 -->
-      <div class="mb-8">
-        <h1 class="text-3xl font-bold text-gray-900">我的资源</h1>
-        <p class="mt-2 text-gray-500">管理您发布的网盘资源，包括草稿和已发布资源</p>
-      </div>
+      <PageHeader
+        title="我的资源"
+        description="管理您发布的网盘资源，包括草稿和已发布资源"
+        :breadcrumbs="[
+          { label: '首页', to: { name: 'Home' } },
+          { label: '资源库', to: { name: 'Resources' } },
+          { label: '我的资源' }
+        ]"
+      />
 
       <!-- 统计卡片 -->
       <div class="grid grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
@@ -342,6 +337,7 @@ import { CloudPlatformLabels } from '../../types/resources'
 import { ResourceStatusLabels } from '../../types/resources'
 import EmptyState from '../../components/EmptyState.vue'
 import StatCard from '../../components/StatCard.vue'
+import PageHeader from '../../components/PageHeader.vue'
 
 const router = useRouter()
 const authStore = useAuthStore()
