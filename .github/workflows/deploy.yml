@@ -40,7 +40,11 @@ jobs:
           VITE_STORAGE_AVATARS_BUCKET: ${{ secrets.VITE_STORAGE_AVATARS_BUCKET }}
           VITE_STORAGE_RESOURCE_COVERS_BUCKET: ${{ secrets.VITE_STORAGE_RESOURCE_COVERS_BUCKET }}
           VITE_APP_BASE_PATH: ${{ secrets.VITE_APP_BASE_PATH }}
-          VITE_MAX_UPLOAD_SIZE_MB: ${{ secrets.VITE_MAX_UPLOAD_SIZE_MB }}
+          VITE_APP_ENV: ${{ secrets.VITE_APP_ENV }}
+          VITE_APP_DEBUG: ${{ secrets.VITE_APP_DEBUG }}
+          VITE_MAX_UPLOAD_SIZE_KB: ${{ secrets.VITE_MAX_UPLOAD_SIZE_KB }}
+          VITE_MAX_TOTAL_IMAGE_SIZE_KB: ${{ secrets.VITE_MAX_TOTAL_IMAGE_SIZE_KB }}
+          VITE_MAX_DESCRIPTION_LENGTH: ${{ secrets.VITE_MAX_DESCRIPTION_LENGTH }}
         run: pnpm run build
 
       - name: Create CNAME file
