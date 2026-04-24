@@ -174,7 +174,7 @@
                 type="url"
               />
               <template #label>
-                <div class="flex items-center">
+                <div class="inline-flex items-center">
                   <span>资源链接</span>
                   <el-tooltip
                     content="付费资源链接将被隐藏，只有购买者可见"
@@ -243,7 +243,7 @@
                 />
               </el-select>
               <template #label>
-                <div class="flex items-center">
+                <div class="inline-flex items-center">
                   <span>资源标签</span>
                   <el-tooltip
                     content="添加相关标签，方便用户搜索"
