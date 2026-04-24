@@ -4,6 +4,8 @@ import Editor from '@tinymce/tinymce-vue'
 import { ResourceService } from '../services/resourceService'
 import { useAuthStore } from '../stores/auth'
 import { ElMessage } from 'element-plus'
+import { getErrorMessage } from '../utils/i18n'
+import { formatFileSize } from '../utils/format'
 
 interface Props {
   modelValue: string
@@ -72,11 +74,18 @@ const initOptions = {
       }
 
       const file = blobInfo.blob()
+      
+      // 验证文件大小
+      const maxSizeKB = Number(import.meta.env.VITE_MAX_UPLOAD_SIZE_KB) || 5120
+      if (file.size > maxSizeKB * 1024) {
+        throw new Error(`图片大小不能超过 ${formatFileSize(maxSizeKB * 1024)}`)
+      }
+
       // 这里调用 ResourceService 的上传逻辑
       const imageUrl = await ResourceService.uploadContentImage(file, userId)
       return imageUrl
     } catch (error: any) {
-      ElMessage.error('图片上传失败: ' + (error.message || '未知错误'))
+      ElMessage.error('图片上传失败: ' + getErrorMessage(error))
       throw error
     }
   },

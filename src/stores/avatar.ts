@@ -57,9 +57,9 @@ export const useAvatarStore = defineStore('avatar', () => {
       }
 
       // 验证文件类型
-      const allowedTypes = ['image/jpeg', 'image/png', 'image/gif', 'image/webp']
+      const allowedTypes = ['image/jpeg', 'image/png']
       if (!allowedTypes.includes(file.type)) {
-        throw new Error('只支持 JPG、PNG、GIF、WebP 格式的图片')
+        throw new Error('只支持 JPG、PNG 格式的图片')
       }
 
       // 验证文件大小 (最大 2MB)

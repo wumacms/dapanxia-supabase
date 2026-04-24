@@ -121,7 +121,7 @@
                     @change="handleFileUpload"
                   />
                   <p class="text-sm text-gray-500">
-                    支持 JPG、PNG 格式，大小不超过 {{ maxSizeMB }}MB
+                    支持 JPG、PNG、WEBP、AVIF 格式，大小不超过 {{ formattedMaxSize }}
                   </p>
                 </div>
               </div>
@@ -343,6 +343,7 @@ import { ResourceCategoryLabels, CloudPlatformLabels } from '../../types/resourc
 import RichTextEditor from '../../components/RichTextEditor.vue'
 import PageHeader from '../../components/PageHeader.vue'
 import { getErrorMessage } from '../../utils/i18n'
+import { formatFileSize } from '../../utils/format'
 
 const route = useRoute()
 const router = useRouter()
@@ -386,7 +387,8 @@ const loading = ref(false)
 const error = ref('')
 const uploading = ref(false)
 const submitting = ref(false)
-const maxSizeMB = Number(import.meta.env.VITE_MAX_UPLOAD_SIZE_MB) || 5
+const maxSizeKB = Number(import.meta.env.VITE_MAX_UPLOAD_SIZE_KB) || 5120
+const formattedMaxSize = computed(() => formatFileSize(maxSizeKB * 1024))
 
 // 计算属性，确保 description 是 string 类型
 const descriptionValue = computed({
@@ -501,16 +503,16 @@ const handleFileUpload = async (event: Event) => {
   if (!file) return
 
   // 验证文件类型和大小
-  const validTypes = ['image/jpeg', 'image/png', 'image/webp']
-  const maxSize = maxSizeMB * 1024 * 1024
+  const validTypes = ['image/jpeg', 'image/png', 'image/webp', 'image/avif']
+  const maxSize = maxSizeKB * 1024
 
   if (!validTypes.includes(file.type)) {
-    ElMessage.error('只支持 JPG、PNG、WebP 格式的图片')
+    ElMessage.error('只支持 JPG、PNG、WebP、AVIF 格式的图片')
     return
   }
 
   if (file.size > maxSize) {
-    ElMessage.error(`图片大小不能超过 ${maxSizeMB}MB`)
+    ElMessage.error(`图片大小不能超过 ${formattedMaxSize.value}`)
     return
   }
 

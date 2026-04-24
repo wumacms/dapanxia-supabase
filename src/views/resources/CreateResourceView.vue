@@ -96,7 +96,7 @@
                     @change="handleFileUpload"
                   />
                   <p class="text-sm text-gray-500">
-                    支持 JPG、PNG 格式，大小不超过 {{ maxSizeMB }}MB
+                    支持 JPG、PNG、WEBP、AVIF 格式，大小不超过 {{ formattedMaxSize }}
                   </p>
                 </div>
               </div>
@@ -291,7 +291,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, reactive, onMounted } from 'vue'
+import { ref, reactive, onMounted, computed } from 'vue'
 import { useRouter } from 'vue-router'
 import type { FormInstance, FormRules } from 'element-plus'
 import { ElMessage } from 'element-plus'
@@ -308,6 +308,7 @@ import { ResourceCategoryLabels, CloudPlatformLabels } from '../../types/resourc
 import RichTextEditor from '../../components/RichTextEditor.vue'
 import PageHeader from '../../components/PageHeader.vue'
 import { getErrorMessage } from '../../utils/i18n'
+import { formatFileSize } from '../../utils/format'
 
 const router = useRouter()
 const authStore = useAuthStore()
@@ -347,7 +348,8 @@ const popularTags = [
 
 const uploading = ref(false)
 const submitting = ref(false)
-const maxSizeMB = Number(import.meta.env.VITE_MAX_UPLOAD_SIZE_MB) || 5
+const maxSizeKB = Number(import.meta.env.VITE_MAX_UPLOAD_SIZE_KB) || 5120
+const formattedMaxSize = computed(() => formatFileSize(maxSizeKB * 1024))
 
 // 表单验证规则
 const rules: FormRules = {
@@ -394,16 +396,16 @@ const handleFileUpload = async (event: Event) => {
   if (!file) return
 
   // 验证文件类型和大小
-  const validTypes = ['image/jpeg', 'image/png', 'image/webp']
-  const maxSize = maxSizeMB * 1024 * 1024
+  const validTypes = ['image/jpeg', 'image/png', 'image/webp', 'image/avif']
+  const maxSize = maxSizeKB * 1024
 
   if (!validTypes.includes(file.type)) {
-    ElMessage.error('只支持 JPG、PNG、WebP 格式的图片')
+    ElMessage.error('只支持 JPG、PNG、WebP、AVIF 格式的图片')
     return
   }
 
   if (file.size > maxSize) {
-    ElMessage.error(`图片大小不能超过 ${maxSizeMB}MB`)
+    ElMessage.error(`图片大小不能超过 ${formattedMaxSize.value}`)
     return
   }
 

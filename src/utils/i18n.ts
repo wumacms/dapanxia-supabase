@@ -147,6 +147,7 @@ const storageMessageMap: Record<string, string> = {
   'object not found': '文件不存在',
   'the resource already exists': '文件已存在',
   'the object exceeded the maximum allowed size': '文件大小超过允许的最大限制',
+  'payload too large': '文件大小超过限制',
   'mime type': '不支持的文件类型',
   'file type not allowed': '不允许的文件类型',
   'invalid file name': '无效的文件名',
@@ -272,9 +273,10 @@ export function getErrorMessage(error: any): string {
   if (!error) return '操作失败，请稍后重试'
 
   // 1. Storage API 错误 - 使用 statusCode
-  if (error.name === 'StorageApiError' && error.statusCode) {
-    const statusMsg = storageStatusCodeMap[error.statusCode]
-    if (statusMsg) return statusMsg
+  // 兼容 StorageApiError 实例和普通对象
+  const statusCode = error.statusCode || error.status
+  if (statusCode && storageStatusCodeMap[statusCode.toString()]) {
+    return storageStatusCodeMap[statusCode.toString()]
   }
 
   // 2. Storage 未知错误 - 处理网络错误
