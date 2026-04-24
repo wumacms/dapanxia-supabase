@@ -7,6 +7,8 @@ interface ImportMetaEnv {
   readonly VITE_LANTUZ_NOTIFY_URL: string
   readonly VITE_SUPABASE_URL: string
   readonly VITE_MAX_UPLOAD_SIZE_KB: string
+  readonly VITE_MAX_DESCRIPTION_LENGTH: string
+  readonly VITE_MAX_TOTAL_IMAGE_SIZE_KB: string
   readonly DEV: boolean
   readonly PROD: boolean
 }

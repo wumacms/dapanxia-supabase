@@ -404,7 +404,8 @@ const rules: FormRules = {
   ],
   description: [
     { required: true, message: '请输入资源描述', trigger: 'blur' },
-    { min: 10, message: '描述至少需要 10 个字符', trigger: 'blur' }
+    { min: 10, message: '描述至少需要 10 个字符', trigger: 'blur' },
+    { max: Number(import.meta.env.VITE_MAX_DESCRIPTION_LENGTH) || 2000, message: `描述不能超过 ${import.meta.env.VITE_MAX_DESCRIPTION_LENGTH || 2000} 个字符`, trigger: 'blur' }
   ],
   resource_url: [
     { required: true, message: '请输入资源链接', trigger: 'blur' },
