@@ -277,7 +277,7 @@
               <el-button
                 type="primary"
                 size="large"
-                @click="submitForm"
+                @click="publishResource"
                 :loading="submitting"
               >
                 立即发布
@@ -468,6 +468,11 @@ const handleFreeToggle = (isFree: boolean) => {
 
 const saveAsDraft = async () => {
   form.status = ResourceStatus.DRAFT
+  await submitForm()
+}
+
+const publishResource = async () => {
+  form.status = ResourceStatus.PUBLISHED
   await submitForm()
 }
 

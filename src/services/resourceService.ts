@@ -25,17 +25,24 @@ export class ResourceService {
       min_price = 0,
       max_price = undefined,
       is_free = undefined,
-      status = ResourceStatus.PUBLISHED,
+      status = undefined, // 默认为 undefined，由逻辑内部处理
       sort_by = 'created_at',
       sort_order = 'desc',
       user_id = undefined,
       include_hidden = false
     } = params
 
+    // 状态逻辑处理：
+    // 1. 如果明确指定了 status，则使用该状态
+    // 2. 如果未指定 status：
+    //    - 如果是查看自己的资源（指定了 user_id），则显示所有状态
+    //    - 如果是公开查询（未指定 user_id），则默认只显示已发布的资源
+    const finalStatus = status || (user_id ? undefined : ResourceStatus.PUBLISHED)
+
     // 确定使用哪个表/视图
     // 如果查询公开资源（已发布且可见），使用 public_resources 视图
     // 否则使用 resources 表
-    const usePublicView = status === ResourceStatus.PUBLISHED && !user_id
+    const usePublicView = finalStatus === ResourceStatus.PUBLISHED && !user_id
     const tableName = usePublicView ? 'public_resources' : 'resources'
     
     // 定义列表页需要的精简字段，排除大文本 description
@@ -79,14 +86,14 @@ export class ResourceService {
       query = query.eq('is_free', is_free)
     }
 
-    // 状态筛选（默认只显示已发布的）
-    if (status) {
-      query = query.eq('status', status)
+    // 状态筛选
+    if (finalStatus) {
+      query = query.eq('status', finalStatus)
       
       // 显示状态筛选（仅已发布资源可以设置可见性）
       // 只有在公开查询（且未指定 user_id）时才过滤隐藏资源
       // "我的资源"页面通过 include_hidden=true 来显示隐藏的资源
-      if (status === ResourceStatus.PUBLISHED && !include_hidden) {
+      if (finalStatus === ResourceStatus.PUBLISHED && !include_hidden) {
         query = query.eq('is_visible', true)
       }
     }
